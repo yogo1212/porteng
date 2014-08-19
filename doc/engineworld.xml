@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fpdoc-descriptions><package name="DING"><module name="EngineWorld"><element name="TFillThread.CollectResult"><short>Stores the generated voxel-data in a buffer and fetches the amount of voxels in that buffer</short><descr>This method stores the generated voxel-data in the OpenGL-buffer specified by <b>vertexbuffer</b> and writes the voxelcount to the Cardinal pointed at by <b>pvoxelcount</b>.
+
+TLoadedChunk calls this when <b>finished</b> is true, since all OpenGL-calls have to be made from the main-thread.</descr>
+      </element>
+    </module>
+  </package>
+</fpdoc-descriptions>

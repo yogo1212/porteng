@@ -1,0 +1,284 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <General>
+      <Flags>
+        <MainUnitHasCreateFormStatements Value="False"/>
+      </Flags>
+      <SessionStorage Value="InProjectDir"/>
+      <MainUnit Value="0"/>
+      <Title Value="My Application"/>
+      <UseAppBundle Value="False"/>
+      <ResourceType Value="res"/>
+    </General>
+    <i18n>
+      <EnableI18N LFM="False"/>
+    </i18n>
+    <VersionInfo>
+      <StringTable ProductVersion=""/>
+    </VersionInfo>
+    <BuildModes Count="1">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="/usr/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <Units Count="43">
+      <Unit0>
+        <Filename Value="octreerecursiontest.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="octreerecursiontest"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="../../engineshader.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineShader"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="../../gamemap.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="gamemap"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="../../engineresourcecolor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="engineresourcecolor"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="../../enginecamera.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginecamera"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="../../enginekeyboard.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginekeyboard"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="../../enginetext.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginetext"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="../../engineresourceloader.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="engineresourceloader"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="../../enginetypes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineTypes"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="../../convenience.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="convenience"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="../../engineobject.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="engineobject"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="../../enginetimer.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginetimer"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="../../gamegui.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="gamegui"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="../../gamecontext.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="gamecontext"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="../../enginediskcache.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginediskcache"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="../../enginemath.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginemath"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="../../enginegui.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginegui"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="../../enginedebug.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginedebug"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="../../enginetextureloader.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginetextureloader"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="../../engineshaderbuilder.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="engineshaderbuilder"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="../../engineunit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="engineunit"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="../../enginestringcomparer.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginestringcomparer"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="../../engineresourcetexture.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="engineresourcetexture"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="../../diyftgl.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="diyftgl"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="../../engineworld.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineWorld"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="../../enginefacilities.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginefacilities"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="../../enginefileutils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginefileutils"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="../../enginemodelloader.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginemodelloader"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="../../enginethread.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginethread"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="../../enginedatatypes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginedatatypes"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="../../assimpscene.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="assimpscene"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="../../enginestrings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginestrings"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="../../enginememory.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginememory"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="../../engineport.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="EnginePort"/>
+      </Unit33>
+      <Unit34>
+        <Filename Value="../../engineresource.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineResource"/>
+      </Unit34>
+      <Unit35>
+        <Filename Value="../../enginedevice.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="enginedevice"/>
+      </Unit35>
+      <Unit36>
+        <Filename Value="../../portengproj.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="portengproj"/>
+      </Unit36>
+      <Unit37>
+        <Filename Value="../../engineform.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineForm"/>
+      </Unit37>
+      <Unit38>
+        <Filename Value="../../engineinput.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="engineinput"/>
+      </Unit38>
+      <Unit39>
+        <Filename Value="../../engineglcontext.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="engineglcontext"/>
+      </Unit39>
+      <Unit40>
+        <Filename Value="../../uses/dglOpenGL.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="dglOpenGL"/>
+      </Unit40>
+      <Unit41>
+        <Filename Value="../../uses/sdl2/SDL2.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SDL2"/>
+      </Unit41>
+      <Unit42>
+        <Filename Value="../../uses/sdl2/SDL2_ttf.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SDL2_ttf"/>
+      </Unit42>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <Target>
+      <Filename Value="octreerecursiontest"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="../..;../../uses;../../uses/sdl2"/>
+      <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Other>
+      <CompilerMessages>
+        <MsgFileName Value=""/>
+      </CompilerMessages>
+      <CustomOptions Value="-dENGINEDEBUG"/>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

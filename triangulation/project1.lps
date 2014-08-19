@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="6">
+      <Unit0>
+        <Filename Value="project1.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="project1"/>
+        <UsageCount Value="29"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="mainform.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="MainForm"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="75"/>
+        <CursorPos X="14" Y="88"/>
+        <UsageCount Value="29"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="nettypes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="NetTypes"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="54"/>
+        <CursorPos X="34" Y="61"/>
+        <UsageCount Value="25"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="sortedlist.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SortedList"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2"/>
+        <CursorPos X="54" Y="14"/>
+        <UsageCount Value="25"/>
+        <Loaded Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="node.pas"/>
+        <UnitName Value="node"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="9" Y="10"/>
+        <UsageCount Value="21"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="/usr/share/fpcsrc/2.6.2/rtl/objpas/classes/classesh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1595"/>
+        <CursorPos X="15" Y="1606"/>
+        <UsageCount Value="10"/>
+      </Unit5>
+    </Units>
+    <General>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <JumpHistory Count="19" HistoryIndex="18">
+      <Position1>
+        <Filename Value="mainform.pas"/>
+        <Caret Line="19" Column="61" TopLine="13"/>
+      </Position1>
+      <Position2>
+        <Filename Value="mainform.pas"/>
+        <Caret Line="20" Column="61" TopLine="13"/>
+      </Position2>
+      <Position3>
+        <Filename Value="mainform.pas"/>
+        <Caret Line="19" Column="61" TopLine="13"/>
+      </Position3>
+      <Position4>
+        <Filename Value="sortedlist.pas"/>
+        <Caret Line="22" Column="59" TopLine="1"/>
+      </Position4>
+      <Position5>
+        <Filename Value="sortedlist.pas"/>
+        <Caret Line="23" Column="40" TopLine="18"/>
+      </Position5>
+      <Position6>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="17" Column="36" TopLine="1"/>
+      </Position6>
+      <Position7>
+        <Filename Value="mainform.pas"/>
+        <Caret Line="26" Column="29" TopLine="13"/>
+      </Position7>
+      <Position8>
+        <Filename Value="mainform.pas"/>
+        <Caret Line="82" Column="16" TopLine="72"/>
+      </Position8>
+      <Position9>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="8" Column="42" TopLine="4"/>
+      </Position9>
+      <Position10>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="50" Column="24" TopLine="35"/>
+      </Position10>
+      <Position11>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="17" Column="12" TopLine="5"/>
+      </Position11>
+      <Position12>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="38" Column="22" TopLine="19"/>
+      </Position12>
+      <Position13>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="17" Column="18" TopLine="14"/>
+      </Position13>
+      <Position14>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="60" Column="7" TopLine="49"/>
+      </Position14>
+      <Position15>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="63" Column="34" TopLine="49"/>
+      </Position15>
+      <Position16>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="16" Column="18" TopLine="13"/>
+      </Position16>
+      <Position17>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="70" Column="25" TopLine="68"/>
+      </Position17>
+      <Position18>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="78" Column="18" TopLine="67"/>
+      </Position18>
+      <Position19>
+        <Filename Value="nettypes.pas"/>
+        <Caret Line="90" Column="4" TopLine="68"/>
+      </Position19>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>

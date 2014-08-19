@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<fpdoc-descriptions><package name="project1"><module name="EngineFacilities"><short>Manages different parts of the engine and makes sure they are shut down in the right order</short><descr>When one part of the engine is started, it should add a reference to the method responsible for cleaning up to the stack.
+That should normally be done after all dependencies have been initialised.
+
+The goal is to make sure to shut down facilities in the right order and prevent errors on program termination.</descr>
+    </module>
+  </package>
+</fpdoc-descriptions>
