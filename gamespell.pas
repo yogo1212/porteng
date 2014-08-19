@@ -20,6 +20,7 @@ function SampleAbilityAction(const ability: PAbility; const caster, target: PGam
   : Boolean;
 begin
   caster^.statmodifiers.add(10, @DoubleSpeed);
+  Result := True;
 end;
 
 function CreateSampleAbility: TAbility;

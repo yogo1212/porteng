@@ -66,6 +66,7 @@ begin
 {$ifdef ENGINEDEBUG}
 	SetDebugCallback;
 {$endif}
+
 	SetPortListener;
 
 	//EngineForm.mainWindow.toggle_fullscreen;

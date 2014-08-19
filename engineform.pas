@@ -66,7 +66,15 @@ begin
 	end;
 end;
 
+function SelectDisplay: longint;
+begin
+
+end;
+
 procedure InitWindow;
+var
+	display: longint;
+	disprect: TSDL_Rect;
 begin
 	if not initialised then
 	begin
@@ -75,13 +83,22 @@ begin
 		if SDL_InitSubSystem(SDL_INIT_VIDEO) = -1 then
 			raise Exception.Create('Error with SDL_Init(SDL_INIT_VIDEO)');
 
-		//TODO find screen size
+		//find screen size
 		//SDL_GetDesktopDisplayMode();
-		mainWindow.Create(800, 600, portengproject.Name);
+		display := SelectDisplay;
+		if SDL_GetDisplayBounds(display, @disprect) = 0 then
+		begin
+			mainWindow.Create(round(disprect.w * 0.8), round(disprect.h * 0.8),
+				portengproject.Name);
 
-		AddFreeRoutine(@FreeWindow);
+			AddFreeRoutine(@FreeWindow);
 
-		InitGlContext;
+			InitGlContext;
+		end
+		else
+		begin
+			dbgError('SDL_GetDisplayBounds failed: ' + SDL_GetError());
+		end;
 	end;
 end;
 
@@ -93,8 +110,11 @@ var
 	dispcnt: word;
 	dm: TSDL_DisplayMode;
 begin
+	// TODO for now we always run on :0
+	display := 0;
+
 	dispcnt := SDL_GetNumVideoDisplays;
-	if display > dispcnt - 1 then
+	if display >= dispcnt then
 		display := 0;
 
 	SDL_GetDesktopDisplayMode(display, @dm);
@@ -154,8 +174,10 @@ begin
 end;
 
 procedure TMainWindow.Resize;
+{$IFDEF USEDEPTHACCU}
 var
 	cnt: byte;
+{$ENDIF}
 begin
 	if windowed then
 	begin
