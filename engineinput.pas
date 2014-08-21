@@ -148,19 +148,19 @@ begin
 		repeat
 			if Pos('-event-joystick', findrec.Name) <> 0 then
 			begin
-				dbgTrace('Found Force-Feedback: ' + findrec.Name);
+				logTrace('Found Force-Feedback: ' + findrec.Name);
 				feedbacks.Add(findrec.Name);
 			end
 			else
 			begin
-				dbgTrace('Found Joystick: ' + findrec.Name);
+				logTrace('Found Joystick: ' + findrec.Name);
 				joysticks.Add(findrec.Name);
 			end;
 		until FindNext(findrec) <> 0;
 		FindClose(findrec);
 	end
 	else
-		dbgTrace('Found no joystick events (/dev/input/by-id/*-joystick)');
+		logTrace('Found no joystick events (/dev/input/by-id/*-joystick)');
 
 	for tmpstr in joysticks do
 	begin
@@ -171,11 +171,11 @@ begin
 
 		Inc(gamepadcnt);
 
-		dbgTrace('Added gamepad: ' + tmpstr);
+		logTrace('Added gamepad: ' + tmpstr);
 		//Feddes TODO
 		if gamepadcnt > Length(gamepad) then
 		begin
-			dbgError('Cant take more than ' + IntToStr(Length(gamepad)) + ' joysticks');
+			logError('Cant take more than ' + IntToStr(Length(gamepad)) + ' joysticks');
 			break;
 		end;
 	end;
@@ -380,12 +380,12 @@ begin
 	end
 	else
 		raise Exception.Create('no default input available for ' + device.ClassName);
-	dbgTrace('Created input of ' + dev.GetName + ' at ' + PtrToHex(@Self));
+	logTrace('Created input of ' + dev.GetName + ' at ' + PtrToHex(@Self));
 end;
 
 destructor TInput.Destroy;
 begin
-	dbgTrace('Input of ' + dev.GetName + ' was destroyed');
+	logTrace('Input of ' + dev.GetName + ' was destroyed');
 	dev.Unplug;
 	inherited Destroy;
 end;

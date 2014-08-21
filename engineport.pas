@@ -186,7 +186,7 @@ end;
 procedure compatAddPort(dev: TGameDevice);
 begin
 	addPort(TInput.Create(dev));
-	dbgTrace('Port added for unused device ' + dev.GetName);
+	logTrace('Port added for unused device ' + dev.GetName);
 end;
 
 procedure GamePortsCleanup;
@@ -245,7 +245,7 @@ begin
 	glLoadIdentity;
 
 {$IFDEF ENGINEDEBUG}
-	frameDbgTrace('x ' + FloatToStr(camera.pos^.X) + 'y ' +
+	frameLogTrace('x ' + FloatToStr(camera.pos^.X) + 'y ' +
 		FloatToStr(camera.pos^.y) + 'z ' + FloatToStr(camera.pos^.z) +
 		' xzrota: ' + FloatToStr(camera.rota^.xzangle) + ' yrota: ' +
 		FloatToStr(camera.rota^.yangle));

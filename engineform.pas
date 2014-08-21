@@ -35,7 +35,7 @@ type
 		wWidth, wHeight, fWidth, fHeight, actualWidth, actualHeight: cardinal;
 		procedure DohandleWindowEvent(evt: PSDL_WindowEvent);
 	public
-		constructor Create(nwidth, nheight: cardinal; ntitle: string);
+		constructor Create(display: longint; nwidth, nheight: cardinal; ntitle: string);
 		destructor Destroy;
 		procedure Resize;
 		procedure Paint;
@@ -68,7 +68,7 @@ end;
 
 function SelectDisplay: longint;
 begin
-
+  Result := 0;
 end;
 
 procedure InitWindow;
@@ -88,7 +88,7 @@ begin
 		display := SelectDisplay;
 		if SDL_GetDisplayBounds(display, @disprect) = 0 then
 		begin
-			mainWindow.Create(round(disprect.w * 0.8), round(disprect.h * 0.8),
+			mainWindow.Create(display, round(disprect.w * 0.8), round(disprect.h * 0.8),
 				portengproject.Name);
 
 			AddFreeRoutine(@FreeWindow);
@@ -97,22 +97,19 @@ begin
 		end
 		else
 		begin
-			dbgError('SDL_GetDisplayBounds failed: ' + SDL_GetError());
+			logError('SDL_GetDisplayBounds failed: ' + SDL_GetError());
 		end;
 	end;
 end;
 
 { TMainWindow }
 
-constructor TMainWindow.Create(nwidth, nheight: cardinal; ntitle: string);
+constructor TMainWindow.Create(display: longint; nwidth, nheight: cardinal;
+  ntitle: string);
 var
-	display: longint;
 	dispcnt: word;
 	dm: TSDL_DisplayMode;
 begin
-	// TODO for now we always run on :0
-	display := 0;
-
 	dispcnt := SDL_GetNumVideoDisplays;
 	if display >= dispcnt then
 		display := 0;
@@ -249,7 +246,7 @@ const
 {$ENDIF}
 begin
 {$IFDEF ENGINEDEBUG}
-	dbgClearFrameLines;
+	logClearFrameLines;
 {$ENDIF}
 
 {$IFDEF USEDEPTHACCU}

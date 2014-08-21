@@ -43,11 +43,11 @@ begin
 		glClearColor(0.50, 0, 0.50, 1);
 		glClearDepth(1);
 
-		dbgTrace('Created GlContext with version ' + glGetString(GL_VERSION));
+		logTrace('Created GlContext with version ' + glGetString(GL_VERSION));
 
 		glGetIntegerv(GL_DEPTH_BITS, @tmpint);
-		dbgTrace('Depth-channel is ' + IntToStr(tmpint) + ' bits wide');
-		dbgTrace('Extensions: ' + glGetString(GL_EXTENSIONS));
+		logTrace('Depth-channel is ' + IntToStr(tmpint) + ' bits wide');
+		logTrace('Extensions: ' + glGetString(GL_EXTENSIONS));
 	end;
 end;
 
@@ -58,7 +58,7 @@ begin
   glGetIntegerv(GL_MAJOR_VERSION, @maj);
   tmp := glGetError();
   if tmp <> 0 then
-    dbgError('Error checking version: ' + IntToStr(tmp));
+    logError('Error checking version: ' + IntToStr(tmp));
   glGetIntegerv(GL_MINOR_VERSION, @min);
   Result := (maj >= major) or ((maj = major) and (min >= minor));
 end;

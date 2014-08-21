@@ -101,7 +101,7 @@ end;
 constructor TMouseKeyboardDevice.Create(inputname: string);
 begin
 	inherited Create(inputname);
-	dbgTrace('Keyboard-input created');
+	logTrace('Keyboard-input created');
 end;
 
 destructor TMouseKeyboardDevice.Destroy;
@@ -122,10 +122,10 @@ begin
 	begin
 		AssignFile(f, path);
 		Reset(f);
-		dbgTrace('Started gamepad thread ' + Name);
+		logTrace('Started gamepad thread ' + Name);
 	end
 	else
-		dbgError('"' + path + '" does not exist');
+		logError('"' + path + '" does not exist');
 end;
 
 procedure TGamepadDevice.DoTerminate;
@@ -135,7 +135,7 @@ begin
 	begin
 		CloseFile(f);
 		runs := False;
-		dbgTrace(Name + ' terminated');
+		logTrace(Name + ' terminated');
 	end;
 end;
 
@@ -194,10 +194,10 @@ procedure TGameDevice.DoTerminate;
 begin
 	inherited DoTerminate;
 	if FatalException <> nil then
-		dbgError('Input "' + Name + '" terminated with Excpetion "' +
+		logError('Input "' + Name + '" terminated with Excpetion "' +
 			FatalException.ToString + '"')
 	else if dbg then
-		dbgTrace('Input "' + Name + '" terminated');
+		logTrace('Input "' + Name + '" terminated');
 end;
 
 procedure TGameDevice.Prepare;
@@ -212,19 +212,19 @@ begin
 	if UnboundNotify <> nil then
 		UnboundNotify(Self)
 	else
-		dbgTrace('No method for notifying unused devices on input ' + getName + ' !');
+		logTrace('No method for notifying unused devices on input ' + getName + ' !');
 end;
 
 procedure TGameDevice.Execute;
 begin
   Prepare;
-	dbgTrace('Entered loop of ' + GetName);
+	logTrace('Entered loop of ' + GetName);
 	try
 		while not Terminated do
 			Fetch;
 	except
 		on E: Exception do
-			dbgError(Name + ' failed with ' + E.Message);
+			logError(Name + ' failed with ' + E.Message);
 	end;
 	EndThread;
 end;
@@ -234,10 +234,10 @@ begin
 	if notif <> nil then
 	begin
 		notify := notif;
-		dbgTrace('Set Notifier of ' + Name + ' to ' + PtrToHex(TMinOPtr(notif)));
+		logTrace('Set Notifier of ' + Name + ' to ' + PtrToHex(TMinOPtr(notif)));
 	end
 	else
-		dbgTrace('Tried setting notifier to nil on ' + GetName);
+		logTrace('Tried setting notifier to nil on ' + GetName);
 end;
 
 procedure TGameDevice.Unplug;

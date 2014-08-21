@@ -53,7 +53,7 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
 {$R *.res}
 
 begin
-	gameDebugInit(portengproject.debugLevel, portengproject.Name);
+	GameLogInit(portengproject.debugLevel, portengproject.Name);
 
 	SDL_Init(0);
 	if not InitOpenGL then
@@ -64,7 +64,7 @@ begin
 	GameThreadInit;
 
 {$ifdef ENGINEDEBUG}
-	SetDebugCallback;
+	SetGlDebugCallback;
 {$endif}
 
 	SetPortListener;

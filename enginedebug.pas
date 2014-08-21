@@ -15,15 +15,15 @@ type
 var
 	errorenum: glenum;
 
-procedure GameDebugInit(lvl: TGameDebugLevel; appname: String);
-procedure dbgError(input: string);
-procedure dbgTrace(message: string);
-procedure SetDebugCallback;
+procedure GameLogInit(lvl: TGameDebugLevel; appname: String);
+procedure logError(input: string);
+procedure logTrace(message: string);
+procedure SetGlDebugCallback;
 
 {$IFDEF ENGINEDEBUG}
-procedure frameDbgError(input: string);
-procedure frameDbgTrace(message: string);
-procedure dbgClearFrameLines;
+procedure frameLogError(input: string);
+procedure frameLogTrace(message: string);
+procedure logClearFrameLines;
 {$ENDIF}
 
 implementation
@@ -34,7 +34,7 @@ var
 	logfile: TextFile;
 	Initialised: boolean = False;
 
-procedure debug(lvl: TGameDebugLevel; message: string);
+procedure log(lvl: TGameDebugLevel; message: string); inline;
 begin
 	if lvl >= debuglvl then
 	begin
@@ -45,14 +45,14 @@ begin
 	end;
 end;
 
-procedure dbgError(input: string);
+procedure logError(input: string);
 begin
-	debug(gdError, input);
+	log(gdError, input);
 end;
 
-procedure dbgTrace(message: string);
+procedure logTrace(message: string);
 begin
-	debug(gdTrace, message);
+	log(gdTrace, message);
 end;
 
 {$IFDEF ENGINEDEBUG}
@@ -64,12 +64,12 @@ begin
 	end;
 end;
 
-procedure frameDbgError(input: string);
+procedure frameLogError(input: string);
 begin
 	framedebug(gdError, input);
 end;
 
-procedure frameDbgTrace(message: string);
+procedure frameLogTrace(message: string);
 begin
 	framedebug(gdTrace, message);
 end;
@@ -88,7 +88,7 @@ begin
 	glLines := 0;
 end;
 
-procedure dbgClearFrameLines;
+procedure logClearFrameLines;
 begin
 
 end;
@@ -155,7 +155,7 @@ begin
 	writeln(logfile, tmpstr);
 end;
 
-procedure SetDebugCallback;
+procedure SetGlDebugCallback;
 begin
 	errorenum := glGetError();
 	if errorenum <> 0 then
@@ -204,7 +204,7 @@ begin
 	end;
 end;
 
-procedure GameDebugInit(lvl: TGameDebugLevel; appname: String);
+procedure GameLogInit(lvl: TGameDebugLevel; appname: String);
 begin
 	if not initialised then
 	begin
@@ -225,4 +225,4 @@ begin
 	end;
 end;
 
-end.
+end.

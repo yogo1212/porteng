@@ -508,12 +508,11 @@ begin
 	while cnt > 0 do
 	begin
 		Dec(cnt);
-		dbgTrace(VecToStr(pnt^.position) + ': ' + FloatToStr(pnt^.size) +
+		logTrace(VecToStr(pnt^.position) + ': ' + FloatToStr(pnt^.size) +
 			' ' + BinToHexStr(@pnt^.colour, SizeOf(TVoxelInfo.colour)));
 		Inc(pnt);
 	end;
 end;
-
 {$endif}
 
 function RequestChunk(const position: TVec3i): TWorldChunk;
@@ -721,8 +720,8 @@ begin
 	curvoxel := (tmppnt - Data);
 {$ifdef ENGINEDEBUG}
 	printVoxelArray(Data, curvoxel);
-	dbgTrace('Built new chunk with ' + IntToStr(curvoxel) + ' voxels');
-	dbgTrace('Chunk Data ' + BinToHexStr(Data, curvoxel * SizeOf(TVoxelInfo)));
+	logTrace('Built new chunk with ' + IntToStr(curvoxel) + ' voxels');
+	logTrace('Chunk Data ' + BinToHexStr(Data, curvoxel * SizeOf(TVoxelInfo)));
 {$endif}
 	if curvoxel > voxelcount then
 		raise Exception.Create('weird stuff goin on here' + PtrToHex(Data) +
