@@ -307,7 +307,7 @@ begin
 		Dec(capacity, bsize);
 		tmpbytes := Data;
 		GetMem(Data, capacity * esize);
-		Move(tmpbytes^, Data^, index * esize);
+		Move(tmpbytes[0], Data[0], index * esize);
 		Move(tmpbytes[(index + 1) * esize], Data[index * esize], len);
 		Freemem(tmpbytes);
 	end
@@ -325,7 +325,6 @@ begin
 	capacity := bsize;
 	FreeMem(Data);
 	GetMem(Data, capacity * esize);
-
 	used := 0;
 end;
 
@@ -343,6 +342,7 @@ procedure TContinuousMemoryManager.Insert(i: cardinal);
 var
 	tmpbytes: PByte;
 	len: cardinal;
+	buffer: array of byte;
 begin
 	len := (used - i) * esize;
 	if used = capacity then
@@ -350,16 +350,16 @@ begin
 		Inc(capacity, bsize);
 		tmpbytes := Data;
 		GetMem(Data, capacity * esize);
-		Move(tmpbytes^, Data^, i * esize);
+		Move(tmpbytes[0], Data[0], i * esize);
 		Move(tmpbytes[i * esize], Data[(i + 1) * esize], len);
 		Freemem(tmpbytes);
 	end
 	else if len <> 0 then
 	begin
-		GetMem(tmpbytes, len);
-		Move(Data[i * esize], tmpbytes^, len);
+	  GetMem(tmpbytes, len);
+		Move(Data[i * esize], tmpbytes[0], len);
 		Move(tmpbytes[0], Data[(i + 1) * esize], len);
-		Freemem(tmpbytes);
+		Freemem(tmpbytes, len);
 	end;
 	Inc(used);
 end;

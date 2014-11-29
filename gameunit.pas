@@ -23,8 +23,9 @@ type
 	public
 		range, casttime, cooldown, remainingCooldown: single;
 		resourcecost: longword;
+    unrest: byte;
 		procedure Init(nrange, ncasttime, ncooldown: single; nresourcecost: longword;
-			nCheckConditions, nTriggerAction: TAbilityFunc);
+      nunrest: Byte; nCheckConditions, nTriggerAction: TAbilityFunc);
 		function StartCast(const caster, target: PGameUnit): boolean;
 		function FinaliseCast(const caster, target: PGameUnit): boolean;
 		procedure passtime(seconds: single);
@@ -47,6 +48,7 @@ type
 		physunit: TEngineUnit;
 		currentCast: TCast;
 		resource: longword;
+    unrest: Byte;
 
     baseStats, stats: TGameStats;
 	  statmodifiers: TGameStatModifyState;
@@ -90,10 +92,22 @@ begin
 	Result := caster^.resource >= ability^.resourcecost;
 end;
 
+function CheckRest(const ability: PAbility; const caster, target: PGameUnit): boolean;
+	inline;
+begin
+	Result := caster^.unrest + ability^.unrest <= 255;
+end;
+
+function CheckResources(const ability: PAbility; const caster, target: PGameUnit): boolean;
+	inline;
+begin
+  Result := CheckRest(ability, caster, target) and CheckMana(ability, caster, target);
+end;
+
 function DefaultConditionChecks(const ability: PAbility;
 	const caster, target: PGameUnit): boolean; inline;
 begin
-	Result := CheckMana(ability, caster, target) and CheckRange(ability, caster, target);
+	Result := CheckRange(ability, caster, target) and CheckResources(ability, caster, target);
 end;
 
 { TCast }
@@ -148,14 +162,15 @@ end;
 
 { TAbility }
 
-procedure TAbility.Init(nrange, ncasttime, ncooldown: single;
-	nresourcecost: longword; nCheckConditions, nTriggerAction: TAbilityFunc);
+procedure TAbility.Init(nrange, ncasttime, ncooldown: single; nresourcecost: longword;
+	nunrest: Byte; nCheckConditions, nTriggerAction: TAbilityFunc);
 begin
 	range := nrange;
 	casttime := ncasttime;
 	cooldown := ncooldown;
 	remainingCooldown := 0;
 	resourcecost := nresourcecost;
+  unrest := nunrest;
 	CheckConditions := nCheckConditions;
 	TriggerAction := nTriggerAction;
 end;

@@ -18,8 +18,8 @@ type
 function BuildPerspProjMat(fov, aspect, znear, zfar: GLfloat): TGlMatrix;
 
 procedure Limit(var input: TVec3; const length: GLfloat);
-function LengthSquare(input: TVec3): GLfloat;
-function LengthSquare(input: TVec3i): GLfloat; overload;
+function LengthSquare(const input: TVec3): GLfloat;
+function LengthSquare(const input: TVec3i): GLfloat; overload;
 function Normalize(input: TVec3): TVec3;
 
 // this brakes for number = 0!!
@@ -87,12 +87,12 @@ end;
 
 // TODO implement those in asm:
 
-function LengthSquare(input: TVec3): GLfloat;
+function LengthSquare(const input: TVec3): GLfloat;
 begin
 	Result := input.X * input.X + input.Y * input.Y + input.Z * input.Z;
 end;
 
-function LengthSquare(input: TVec3i): GLfloat;
+function LengthSquare(const input: TVec3i): GLfloat;
 begin
   Result := input.X * input.X + input.Y * input.Y + input.Z * input.Z;
 end;
@@ -103,7 +103,7 @@ begin
 end;
 
 
-procedure LimitDoNothing(var input: TVec3; const length: GLfloat); register;
+procedure LimitDoNothing(var {%H-}input: TVec3; const {%H-}length: GLfloat); register;
 begin
 end;
 

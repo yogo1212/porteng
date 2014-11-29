@@ -25,7 +25,7 @@ end;
 
 function CreateSampleAbility: TAbility;
 begin
-  Result.Init(1, 3, 10, 10, @DefaultConditionChecks, @SampleAbilityAction);
+  Result.Init(1, 3, 10, 10, 10, @DefaultConditionChecks, @SampleAbilityAction);
 end;
 
 end.

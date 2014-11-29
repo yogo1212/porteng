@@ -31,7 +31,7 @@
         <Display Value=":1"/>
       </local>
     </RunParams>
-    <Units Count="41">
+    <Units Count="42">
       <Unit0>
         <Filename Value="DING.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -156,9 +156,9 @@
         <UnitName Value="EngineFacilities"/>
       </Unit23>
       <Unit24>
-        <Filename Value="engineresourcecolor.pas"/>
+        <Filename Value="engineresourcecolour.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="EngineResourceColor"/>
+        <UnitName Value="EngineResourceColour"/>
       </Unit24>
       <Unit25>
         <Filename Value="engineresourcetexture.pas"/>
@@ -238,8 +238,13 @@
       <Unit40>
         <Filename Value="enginemousekeyboard.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="enginemousekeyboard"/>
+        <UnitName Value="EngineMouseKeyboard"/>
       </Unit40>
+      <Unit41>
+        <Filename Value="engineshape.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineShape"/>
+      </Unit41>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

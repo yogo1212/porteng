@@ -5,7 +5,7 @@ unit EngineModelLoader;
 interface
 
 uses
-	Classes, SysUtils, EngineObject, EngineTypes, EngineResourceTexture,
+	Classes, SysUtils, EngineTypes, EngineResourceTexture,
     EngineResourceLoader;
 
 implementation

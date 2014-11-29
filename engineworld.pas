@@ -43,6 +43,7 @@ type
 		function Recurse(index: byte): TOcEntry;
 		function SubColour: TCol4b;
 		function TranslateColour(index: byte): TCol4b;
+    // this works with half-sizes. as does the shader.
 		procedure GetVoxelData(relrenderPos: TVec3; var destpnt: PVoxelInfo;
 			pos: TVec3; size: GLfloat; LoDper1: word; curCol: TCol4b);
 	end;
@@ -58,16 +59,15 @@ type
 
 		function BuildFileName: string;
 	public
-		position: TVec3i;
+		position: TChunkPosition;
 
-		constructor Create(const nposition: TVec3i);
+		constructor Create(const nposition: TChunkPosition);
 		destructor Destroy;
 
 		function Use: TOcEntry;
 		procedure UnUnse;
 
-		function RelToAbsPos(input: TVec3): TVec3;
-		function AbsToRelPos(input: TVec3): TVec3s;
+		function AbsToRelPos(input: TGamePosition): TVec3;
 
 		function CountVoxels: cardinal;
 	end;
@@ -83,10 +83,10 @@ type
 		curvoxel, voxelcount: cardinal;
 		chunk: TWorldChunk;
 		finished: PBoolean;
-		AbsViewPos: TVec3;
+		AbsViewPos: TGamePosition;
 		LoDper1: word;
 		constructor Create(nchunk: TWorldChunk; finishedflag: PBoolean;
-			nAbsViewPos: TVec3; nLoDper1: word);
+			nAbsViewPos: TGamePosition; nLoDper1: word);
 		destructor Destroy; override;
 		procedure Execute; override;
 		procedure CollectResult(vertexbuffer: GLuint; pvoxelcount: PCardinal);
@@ -94,7 +94,7 @@ type
 
 	{ TLoadedChunk }
 
-	TUpdateRenderDataProc = procedure(const nAbsViewPos: TVec3;
+	TUpdateRenderDataProc = procedure(const nAbsViewPos: TGamePosition;
 		const nLoDper1: word) of object;
 
 	TLoadedChunk = object
@@ -102,12 +102,13 @@ type
 		fillthread: TFillThread;
 
 		procedure FillRenderData;
-		procedure DontUpdateRenderData(const nAbsViewPos: TVec3; const nLoDper1: word);
+		procedure DontUpdateRenderData(const {%H-}nAbsViewPos: TGamePosition;
+      const {%H-}nLoDper1: word);
 		procedure DoDraw;
 	public
 		chunk: TWorldChunk;
-		AbsRenderPos: TVec3i;
-		AbsViewPos: TVec3;
+		AbsRenderPos: TChunkPosition;
+		AbsViewPos: TGamePosition;
 		LoDper1: word;
 
 		vertexarray, vertexbuffer: GLuint;
@@ -117,17 +118,16 @@ type
 		UpdateRenderData: TUpdateRenderDataProc;
 		draw: TObjProc;
 
-		constructor Create(const nAbsRenderPos: TVec3i);
+		constructor Create(const nAbsRenderPos: TChunkPosition);
 		destructor Destroy;
 
-		procedure DoUpdateRenderData(const nAbsViewPos: TVec3; const nLoDper1: word);
+		procedure DoUpdateRenderData(const nAbsViewPos: TGamePosition; const nLoDper1: word);
 	end;
 
 	PLoadedChunk = ^TLoadedChunk;
 
 procedure GameWorldInit;
-function CheckWorldCollision(var worldPos: TRelWorldPosition;
-	var pos: TGamePosition; movement: TVec3): boolean;
+function CheckWorldCollision(var pos: TGamePosition; movement: TVec3): boolean;
 
 {$IFDEF ENGINEDEBUG}
 function CastRayEmpty(const ocentry: TOcEntry; var pos: TVec3;
@@ -212,17 +212,17 @@ end;
 procedure normaliseWorldPos(var worldPos: glint; var pos: GLfloat);
 begin
 	// TODO rename parameters
-	if pos > 256 then
+	if pos > worldChunkSize / 2 then
 	begin
-		pos -= 512;
+		pos -= worldChunkSize;
 		Inc(worldPos);
 	end
 	else
 {$IFDEF DEBUGNORMALISER}
-	if pos < 256 then
+	if pos < -worldChunkSize / 2 then
 {$ENDIF}
 	begin
-		pos += 512;
+		pos += worldChunkSize;
 		Dec(worldPos);
 	end
 {$IFDEF DEBUGNORMALISER}
@@ -249,12 +249,13 @@ const
 	CastRayOctree: array[TOcType] of TRayCastFunc =
 		(@CastRayEmpty, @CastRayFull, @CastRayRec, @CastRayEmpty);
 
-procedure DontProgressVectorComponent(const pos, dir: GLfloat; var Result: GLfloat);
+procedure DontProgressVectorComponent(const {%H-}pos, {%H-}dir: GLfloat;
+  var {%H-}Result: GLfloat);
 begin
 
 end;
 
-procedure DoprogressVectorComponent(const pos, dir: GLfloat; var Result: GLfloat);
+procedure DoProgressVectorComponent(const pos, dir: GLfloat; var Result: GLfloat);
 var
 	offset: TIntFloat;
 begin
@@ -263,9 +264,9 @@ begin
 	offset.intval := offset.intval or (Pglfloatsizedint(@dir)^ and glfloatsignbit);
 	// and adds it to pos
 	offset.floatval := pos - offset.floatval;
-	offset.intval := (offset.intval and not glfloatsignbit)
-    or (Pglfloatsizedint(@dir)^ and glfloatsignbit);
-  // TODO there was a sigfpe
+	offset.intval := (offset.intval and not glfloatsignbit) or
+		(Pglfloatsizedint(@dir)^ and glfloatsignbit);
+	// TODO there was a sigfpe .. and again. after some time of doing nothing
 	Result := Min(offset.floatval / dir, Result);
 end;
 
@@ -274,7 +275,7 @@ type
 
 const
 	progressVectorComponent: array[boolean] of TProgressVectorProc =
-		(@DontProgressVectorComponent, @DoprogressVectorComponent);
+		(@DontProgressVectorComponent, @DoProgressVectorComponent);
 
 function CastRayEmpty(const ocentry: TOcEntry; var pos: TVec3;
 	var direction: TVec3): boolean;
@@ -324,7 +325,7 @@ begin
 	Result := True;
 end;
 
-procedure DontCorrectSigns(pos: Pglfloat; const direction: glfloat);
+procedure DontCorrectSigns({%H-}pos: Pglfloat; const {%H-}direction: glfloat);
 begin
 
 end;
@@ -366,14 +367,14 @@ begin
 
 	index := (((Pglfloatsizedint(@pos.X)^ and glfloatsignbit) shr glfloatsignbitindex) or
 		((Pglfloatsizedint(@pos.Y)^ and glfloatsignbit) shr (glfloatsignbitindex - 1)) or
-		((Pglfloatsizedint(@pos.Z)^ and glfloatsignbit) shr (glfloatsignbitindex - 2)))
-    xor $7;
-  {writeln(
+		((Pglfloatsizedint(@pos.Z)^ and glfloatsignbit) shr
+		(glfloatsignbitindex - 2))) xor $7;
+	{writeln(
     chr(((Pglfloatsizedint(@pos.X)^ and glfloatsignbit) shr glfloatsignbitindex)
       + Ord('0')),
-	  chr(((Pglfloatsizedint(@pos.Y)^ and glfloatsignbit) shr (glfloatsignbitindex - 1))
+    chr(((Pglfloatsizedint(@pos.Y)^ and glfloatsignbit) shr (glfloatsignbitindex - 1))
       + Ord('0')),
-		chr(((Pglfloatsizedint(@pos.Z)^ and glfloatsignbit) shr (glfloatsignbitindex - 2))
+    chr(((Pglfloatsizedint(@pos.Z)^ and glfloatsignbit) shr (glfloatsignbitindex - 2))
       + Ord('0')));}
 
 	direction *= 2;
@@ -386,14 +387,15 @@ begin
 		0.5, ((index shr 2) and 1) - 0.5);
 	direction /= 2;
 
-	if ((pos.X = 0) and (direction.X <> 0)) or ((pos.Y = 0) and (direction.Y <> 0))
-    or ((pos.Z = 0) and (direction.Z <> 0)) and (not Result) then
+	if ((pos.X = 0) and (direction.X <> 0)) or ((pos.Y = 0) and (direction.Y <> 0)) or
+		((pos.Z = 0) and (direction.Z <> 0)) and (not Result) then
 	begin
 		prepareSigns(pos, direction);
 
 		index := (((Pglfloatsizedint(@pos.X)^ and glfloatsignbit) shr glfloatsignbitindex) or
 			((Pglfloatsizedint(@pos.Y)^ and glfloatsignbit) shr (glfloatsignbitindex - 1)) or
-			((Pglfloatsizedint(@pos.Z)^ and glfloatsignbit) shr (glfloatsignbitindex - 2))) xor $7;
+			((Pglfloatsizedint(@pos.Z)^ and glfloatsignbit) shr
+			(glfloatsignbitindex - 2))) xor $7;
 
 		direction *= 2;
 		pos := (pos - Vec3((index and 1) - 0.5, ((index shr 1) and 1) - 0.5,
@@ -420,72 +422,74 @@ begin
 end;
 
 type
-  TCorrectComponentProc = procedure (var worldPos: GLint; var pos: GLfloat;
-  const dir: GLfloat; var flag: Boolean); register;
+	TCorrectComponentProc = procedure(var worldPos: GLint; var pos: GLfloat;
+		const dir: GLfloat; var flag: boolean); register;
 
-procedure DontTryCorrectComponent(var worldPos: GLint; var pos: GLfloat;
-  const dir: GLfloat; var flag: Boolean);
+procedure DontTryCorrectComponent(var {%H-}worldPos: GLint; var {%H-}pos: GLfloat;
+	const {%H-}dir: GLfloat; var {%H-}flag: boolean);
 begin
 
 end;
 
-procedure DoTryCorrectComponent(var worldPos: GLint; var pos: GLfloat; const dir: GLfloat;
-  var flag: Boolean);
+procedure DoTryCorrectComponent(var worldPos: GLint; var pos: GLfloat;
+	const dir: GLfloat; var flag: boolean);
 begin
-  if (pos > 256) or
-    ((pos = 256) and ((Pglfloatsizedint(@dir)^ and glfloatsignbit) = 0)) then
-  begin
-    pos -= 512;
-    worldPos += 1;
-    flag := True;
-  end
-  else if (pos < -256) or
-    ((pos = -256) and ((Pglfloatsizedint(@dir)^ and glfloatsignbit) <> 0)) then
-  begin
-    pos += 512;
-    worldPos -= 1;
-    flag := True;
-  end;
+	if (pos > worldChunkSize / 2) or ((pos = worldChunkSize / 2) and
+		((Pglfloatsizedint(@dir)^ and glfloatsignbit) = 0)) then
+	begin
+		pos -= worldChunkSize;
+		worldPos += 1;
+		flag := True;
+	end
+	else if (pos < -worldChunkSize / 2) or ((pos = -worldChunkSize / 2) and
+		((Pglfloatsizedint(@dir)^ and glfloatsignbit) <> 0)) then
+	begin
+		pos += worldChunkSize;
+		worldPos -= 1;
+		flag := True;
+	end;
 end;
 
-const TryCorrectComponent: array[Boolean] of TCorrectComponentProc =
-  (@DontTryCorrectComponent, @DoTryCorrectComponent);
+const
+	TryCorrectComponent: array[boolean] of TCorrectComponentProc =
+		(@DontTryCorrectComponent, @DoTryCorrectComponent);
 
-function CheckWorldCollision(var worldPos: TRelWorldPosition;
-	var pos: TGamePosition; movement: TVec3): boolean;
+function CheckWorldCollision(var pos: TGamePosition; movement: TVec3): boolean;
 var
-	tmpchunk: TWorldChunkPlain; flag: Boolean;
+	tmpchunk: TWorldChunkPlain;
+	flag: boolean;
 begin
-  repeat
-    flag := False;
-	  tmpchunk.position := worldPos;
+	repeat
+		flag := False;
+		tmpchunk.position := pos.worldPos;
 
-	  RelToMiau(pos, movement, 256);
+		RelToMiau(pos.offset, movement, worldChunkSize / 2);
 
- 	  // TODO inline if  or not? hopefully it will be predicted.
-	  if activechunks.Fetch(@tmpchunk) then
-		  Result := CastRayOctree[OcRec](tmpchunk.octree, pos, movement)
-    else
-      Result := CastRayOctree[OcEmpty](tmpchunk.octree, pos, movement);
+		// TODO inline if  or not? hopefully it will be predicted.
+		if activechunks.Fetch(@tmpchunk) then
+			Result := CastRayOctree[OcRec](tmpchunk.octree, pos.offset, movement)
+		else
+    // TODO remove this branch?
+			Result := CastRayOctree[OcEmpty](tmpchunk.octree, pos.offset, movement);
 
-	  MiauToRel(pos, movement, 256);
+		MiauToRel(pos.offset, movement, worldChunkSize / 2);
 
-	  if Abs(pos.X) > 256 then
-    begin
-		  normaliseWorldPos(worldPos.X, pos.X);
-      flag := True;
-    end;
-	  if Abs(pos.Y) > 256 then
-    begin
-		  normaliseWorldPos(worldPos.Y, pos.Y);
-      flag := True;
-    end;
-	  if Abs(pos.Z) > 256 then
-    begin
-		  normaliseWorldPos(worldPos.Z, pos.Z);
-      flag := True;
-    end;
-  until not flag;
+		if Abs(pos.offset.X) > worldChunkSize / 2 then
+		begin
+			normaliseWorldPos(pos.worldPos.X, pos.offset.X);
+			flag := True;
+		end;
+		if Abs(pos.offset.Y) > worldChunkSize / 2 then
+		begin
+			normaliseWorldPos(pos.worldPos.Y, pos.offset.Y);
+			flag := True;
+		end;
+		if Abs(pos.offset.Z) > worldChunkSize / 2 then
+		begin
+			normaliseWorldPos(pos.worldPos.Z, pos.offset.Z);
+			flag := True;
+		end;
+	until not flag;
 end;
 
 function finaliseColour(const input: TCol4b): TCol4b;
@@ -498,7 +502,7 @@ begin
 	// a is now 63;127;191;255
 {$ELSE}
 	// Sadly, before order-independent-transparency-rendering is feasible:
-	Result.w := 255;
+	Result.A := 255;
 {$ENDIF}
 end;
 
@@ -513,6 +517,7 @@ begin
 		Inc(pnt);
 	end;
 end;
+
 {$endif}
 
 function RequestChunk(const position: TVec3i): TWorldChunk;
@@ -624,7 +629,7 @@ end;
 
 function TOcEntry.TranslateColour(index: byte): TCol4b;
 begin
-	Result := Vec4ub(Ord(Get((0 + index) and $7)) + Ord(Get((4 + index) and $7)),
+	Result := Col4b(Ord(Get((0 + index) and $7)) + Ord(Get((4 + index) and $7)),
 		Ord(Get((1 + index) and $7)) + Ord(Get((5 + index) and $7)),
 		Ord(Get((2 + index) and $7)) + Ord(Get((6 + index) and $7)),
 		Ord(Get((3 + index) and $7)) + Ord(Get((7 + index) and $7))) * $30;
@@ -634,7 +639,7 @@ function TOcEntry.SubColour: TCol4b;
 var
 	cnt: byte;
 begin
-	Result := Vec4ub(0, 0, 0, 0);
+	Result := Col4b(0, 0, 0, 0);
 	for cnt := 0 to 7 do
 	begin
 		if Get(cnt) = OcRec then
@@ -691,7 +696,7 @@ end;
 { TFillThread }
 
 constructor TFillThread.Create(nchunk: TWorldChunk; finishedflag: PBoolean;
-	nAbsViewPos: TVec3; nLoDper1: word);
+	nAbsViewPos: TGamePosition; nLoDper1: word);
 begin
 	inherited Create(True);
 	chunk := nchunk;
@@ -714,8 +719,8 @@ var
 	tmppnt: PVoxelInfo;
 begin
 	tmppnt := Data;
-	chunk^.octree.GetVoxelData(Vec3(chunk^.AbsToRelPos(AbsViewPos)), tmppnt, Vec3(0, 0, 0),
-		256, LoDper1, Vec4ub(0, 0, 0, 0));
+	chunk^.octree.GetVoxelData(chunk^.AbsToRelPos(AbsViewPos) / 2, tmppnt, Vec3(0, 0, 0),
+		worldChunkSize / 2, LoDper1, Col4b(0, 0, 0, 0));
 
 	curvoxel := (tmppnt - Data);
 {$ifdef ENGINEDEBUG}
@@ -741,7 +746,7 @@ end;
 
 { TLoadedChunk }
 
-constructor TLoadedChunk.Create(const nAbsRenderPos: TVec3i);
+constructor TLoadedChunk.Create(const nAbsRenderPos: TChunkPosition);
 begin
 	chunk := RequestChunk(nAbsRenderPos);
 	if chunk <> nil then
@@ -776,7 +781,7 @@ begin
 	end;
 end;
 
-procedure TLoadedChunk.DoUpdateRenderData(const nAbsViewPos: TVec3;
+procedure TLoadedChunk.DoUpdateRenderData(const nAbsViewPos: TGamePosition;
 	const nLoDper1: word);
 begin
 	AbsViewPos := nAbsViewPos;
@@ -796,7 +801,7 @@ begin
 	fillthread.Start;
 end;
 
-procedure TLoadedChunk.DontUpdateRenderData(const nAbsViewPos: TVec3;
+procedure TLoadedChunk.DontUpdateRenderData(const nAbsViewPos: TGamePosition;
 	const nLoDper1: word);
 begin
 
@@ -836,7 +841,7 @@ begin
 		@PVoxelInfo(nil)^.size);
 end;
 
-procedure DontReload(chunk: PLoadedChunk);
+procedure DontReload({%H-}chunk: PLoadedChunk);
 begin
 end;
 
@@ -853,7 +858,7 @@ end;
 
 { TWorldChunk }
 
-constructor TWorldChunkPlain.Create(const nposition: TVec3i);
+constructor TWorldChunkPlain.Create(const nposition: TChunkPosition);
 var
 	filestream: TFileStream;
 	filename: string;
@@ -901,19 +906,14 @@ begin
 		Destroy;
 end;
 
-function TWorldChunkPlain.RelToAbsPos(input: TVec3): TVec3;
+function TWorldChunkPlain.AbsToRelPos(input: TGamePosition): TVec3;
 begin
-	Result.X := position.X + input.X / 128;
-	Result.Y := position.Y + input.Y / 128;
-	Result.Z := position.Z + input.Z / 128;
-	//Result := position + (input / 128);
-end;
-
-function TWorldChunkPlain.AbsToRelPos(input: TVec3): TVec3s;
-begin
-	Result.X := round((input.X - position.X) * 128);
-	Result.Y := round((input.Y - position.Y) * 128);
-	Result.Z := round((input.Z - position.Z) * 128);
+	Result.X := ((input.worldPos.X - position.X) * 512 + input.offset.X);
+	Result.Y := ((input.worldPos.Y - position.Y) * 512 + input.offset.Y);
+	Result.Z := ((input.worldPos.Z - position.Z) * 512 + input.offset.Z);
+	//Result.X := round((input.X - position.X) * 128);
+	//Result.Y := round((input.Y - position.Y) * 128);
+	//Result.Z := round((input.Z - position.Z) * 128);
 end;
 
 

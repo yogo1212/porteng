@@ -6,7 +6,7 @@ interface
 
 uses
 	Classes, SysUtils, EngineShader, EngineFacilities, EngineTypes, dglOpenGL,
-	EngineObject, EngineResourceColor, EngineResourceTexture, EngineResource,
+	EngineObject, EngineResourceColour, EngineResourceTexture, EngineResource,
 	EngineText, EngineTextureLoader, EngineResourceLoader, EngineStrings, EngineWorld;
 
 procedure RenderWorldObjects; inline;
@@ -18,6 +18,7 @@ var
 	initialised: boolean = False;
 	testobj, textobj, testbmpobj: TGameGraphicsObj;
 	testname, textname, testbmpname: TEngineString;
+  ballname: TEngineString;
 
 procedure SetupTextObj;
 var
@@ -46,7 +47,7 @@ begin
 	CreateCube(tmpmod, gbMiddle, 2);
 	GameResourceAdd(GameTexModLoader(testbmpname, tmpmod, tmptex), testbmpname);
 
-	testbmpobj.Create(testbmpname, XYZRotation(0, 0), Position(0, 4, 0), Vec3i(0, 0, 0));
+	testbmpobj.Create(testbmpname, XYZRotation(0, 0), GamePosition(0, 4, 0, 0, 0, 0));
 end;
 
 procedure SetupTestObj;
@@ -54,7 +55,13 @@ begin
 	testname := EngineString('colPyramid');
 	GameResourceAdd(ColouredPyramidModelLoader(1, testname), testname);
 
-	testobj.Create(testname, XYZRotation(0, 0), Position(0, 0, -256), Vec3i(0, 0, 0));
+	testobj.Create(testname, XYZRotation(0, 0), GamePosition(0, 0, 256, 0, 0, -1));
+end;
+
+procedure SetupTestBall;
+begin
+  ballname := EngineString('colBall');
+	GameResourceAdd(ColouredBallModelLoader(2, 3, ballname), ballname);
 end;
 
 procedure RenderWorldObjects;
@@ -73,6 +80,7 @@ begin
 		GameResourceUnUnse(testname);
 		GameResourceUnUnse(textname);
 		GameResourceUnUnse(testbmpname);
+		GameResourceUnUnse(ballname);
 	end;
 end;
 
@@ -92,6 +100,8 @@ begin
 		SetupTestObj;
 		SetupTextObj;
 		SetupBMPTestObj;
+    SetupTestBall;
+
 
 		AddFreeRoutine(@GameMapCleanup);
 	end;

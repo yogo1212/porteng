@@ -39,11 +39,10 @@ type
 		gMesh: TGameModelRepr;
 		rota: TGameRotation;
 		pos: TGamePosition;
-		worldPos: TRelWorldPosition;
 
 		meshname: TResourceName;
 		constructor Create(mesh: TResourceName; rotation: TGameRotation;
-			position: TGamePosition; worldPosition: TRelWorldPosition);
+			position: TGamePosition);
 		procedure Draw;
 		procedure rotateXZ(amount: GLfloat); virtual;
 		procedure rotateY(amount: GLfloat); virtual;
@@ -58,7 +57,7 @@ implementation
 type
 	TModelReprProc = procedure(repr: PGameModelRepr);
 
-procedure HasNoTexture(repr: PGameModelRepr);
+procedure HasNoTexture({%H-}repr: PGameModelRepr);
 begin
 
 end;
@@ -79,6 +78,7 @@ end;
 procedure IndexedModelDraw(repr: PGameModelRepr);
 begin
 	glBindVertexArray(repr^.vertexarray);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, repr^.indexlist);
 	glDrawElements(repr^.drawType, repr^.indexcount, GL_UNSIGNED_INT, nil);
 end;
 
@@ -140,22 +140,21 @@ procedure TGameGraphicsObj.Draw;
 begin
 	glPushMatrix;
 	PrepareShader(@gMesh);
-	glTranslatef(pos.x, pos.y, pos.z);
+	glTranslatef(pos.offset.X, pos.offset.Y, pos.offset.Z);
 	glRotatef(RadToDeg(rota.xzangle), 0, -1, 0);
 	glRotatef(RadToDeg(rota.yangle), 1, 0, 0);
-	EngineShader.SetRenderOffset(worldPos);
+	EngineShader.SetRenderOffset(pos.worldPos);
 	DrawModel(@gMesh);
 	glPopMatrix;
 end;
 
 constructor TGameGraphicsObj.Create(mesh: TResourceName; rotation: TGameRotation;
-	position: TGamePosition; worldPosition: TRelWorldPosition);
+	position: TGamePosition);
 begin
 	gMesh := TGameModel(GameResourceUse(mesh, grtModel)).GetRepresentation;
 	meshname := mesh;
 	rota := rotation;
 	pos := position;
-	worldPos := worldPosition;
 end;
 
 destructor TGameGraphicsObj.Destroy;

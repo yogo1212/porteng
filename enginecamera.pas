@@ -43,18 +43,17 @@ end;
 
 procedure TGameCamera.FreeTR;
 begin
-	//Das hier geht geht:
-	gluLookAt(pos^.x, pos^.y, pos^.z, pos^.X + (sin(rota^.xzangle) * cos(rota^.yangle)),
-		pos^.Y + sin(rota^.yangle), pos^.Z - (cos(rota^.xzangle) *
+	gluLookAt(pos^.offset.x, pos^.offset.y, pos^.offset.z, pos^.offset.X + (sin(rota^.xzangle) * cos(rota^.yangle)),
+		pos^.offset.Y + sin(rota^.yangle), pos^.offset.Z - (cos(rota^.xzangle) *
 		cos(rota^.yangle)), 0, 1, 0);
 end;
 
 procedure TGameCamera.FixedTR;
 begin
-	gluLookAt(pos^.X + (sin(rota^.xzangle) * cos(rota^.yangle)) * dist,
-		pos^.Y + sin(rota^.yangle) * dist, pos^.Z -
+	gluLookAt(pos^.offset.X + (sin(rota^.xzangle) * cos(rota^.yangle)) * dist,
+		pos^.offset.Y + sin(rota^.yangle) * dist, pos^.offset.Z -
 		(cos(rota^.xzangle) * cos(rota^.yangle)) * dist,
-		pos^.x, pos^.y, pos^.z, 0, 1, 0);
+		pos^.offset.x, pos^.offset.y, pos^.offset.z, 0, 1, 0);
 end;
 
 constructor TGameCamera.Create(position: PGamePosition; distance: GLfloat;

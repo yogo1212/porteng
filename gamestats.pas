@@ -76,12 +76,8 @@ end;
 
 procedure TGameStatModifyState.Delete(priority: byte; proc: TGameStatModifierProc);
 var
-	tmpmod: TGameStatModifier; tmpindex: Cardinal;
+	tmpindex: Cardinal;
 begin
-	tmpmod.proc := proc;
-	tmpmod.priority := priority;
-
-
 	tmpindex := 0;
 	while (tmpindex < mods.Count) and
 		not((priority = PGameStatModifier(mods.Get(tmpindex))^.priority)

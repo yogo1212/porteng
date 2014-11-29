@@ -28,10 +28,11 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
 	EngineObject,
 	EnginePort,
 	EngineResource,
-	EngineResourceColor,
+	EngineResourceColour,
 	EngineResourceLoader,
 	EngineResourceTexture,
 	EngineShader,
+  EngineShape,
 	EngineShaderBuilder,
 	EngineStringComparer,
 	EngineStrings,
@@ -73,5 +74,4 @@ begin
 	EngineForm.mainWindow.mainLoop;
 	GameClose;
 	SDL_Quit;
-
 end.

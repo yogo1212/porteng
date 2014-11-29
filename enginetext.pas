@@ -28,7 +28,7 @@ begin
     GameFontInit;
     // Initialise this particular font
     try
-      font := FontInit(sansfile, 72, 72);
+      font := FontInit(sansfile, 72);
     except
       on E: Exception do raise Exception.Create('Couldn''t load font-file "' + sansfile
         + '": ' + E.Message);
@@ -43,7 +43,7 @@ end;
 
 function GetTextObj(texmodname: TResourceName): TGameGraphicsObj;
 begin
-  Result.Create(texmodname, XYZRotation(0, 0), Position(0, 0, 0), Vec3i(0,0,0));
+  Result.Create(texmodname, XYZRotation(0, 0), GamePosition(0, 0, 0, 0, 0, 0));
 end;
 
 initialization

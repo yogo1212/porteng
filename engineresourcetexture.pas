@@ -12,7 +12,7 @@ type
 
 	TGameBoundry = (gbMiddle, gbBottomMiddle, gbTopLeft);
 
-  PGameTextureRepr = ^TGameTextureRepr;
+	PGameTextureRepr = ^TGameTextureRepr;
 
 	TGameTextureRepr = record
 		handle: GLuint;
@@ -76,14 +76,15 @@ type
 	PTexModelMeta = ^TTexModelMeta;
 
 constructor TGameTexModPair.Create(nmodel, ntexture: TEngineString);
-var tmpmodel: TGameModel;
+var
+	tmpmodel: TGameModel;
 begin
 	gtexture := TGameTexture(GameResourceUse(ntexture, grtTexture)).GetRepresentation;
-  tmpmodel := TGameModel(GameResourceUse(nmodel, grtModel));
+	tmpmodel := TGameModel(GameResourceUse(nmodel, grtModel));
 	gmodel := tmpmodel.GetRepresentation;
 	inherited Create(gmodel.programtype, gmodel.vertexarray, tmpmodel.vertexbuffer,
-    gmodel.indexlist, gtexture.handle, gmodel.drawType, gmodel.indexcount,
-    gmodel.vertexcount);
+		gmodel.indexlist, gtexture.handle, gmodel.drawType, gmodel.indexcount,
+		gmodel.vertexcount);
 	model := nmodel;
 	texture := ntexture;
 end;
@@ -111,7 +112,7 @@ begin
 	FreeMem(tmppnt, tmpsize);
 end;
 
-function LoadTexModFromCache(cache: Pointer; cachesize: cardinal;
+function LoadTexModFromCache(const cache: Pointer; const cachesize: cardinal;
 	out conttype: TGameResourceType): TObject;
 begin
 	Result := TGameTexModPair.Create(PEngineString(cache)^,
@@ -154,29 +155,26 @@ begin
 	Result := grbTextureFile;
 end;
 
-function LoadTextureFileFromCache(cache: Pointer; cachesize: cardinal;
+function LoadTextureFileFromCache(const cache: Pointer; const cachesize: cardinal;
 	out conttype: TGameResourceType): TObject;
 var
 	texmeta: TTextureMeta;
 	filenamelength: word;
 	filename: string;
 	handle: GLuint;
-	tmppnt: Pointer;
+	iterator, tmppnt: Pointer;
 	cnt: cardinal;
 	tmpfile: TFileStream;
 	offset, linebytesize: cardinal;
 	topdown: boolean;
 begin
-	texmeta := PTextureMeta(cache)^;
-	cache := cache + SizeOf(texmeta);
-	filenamelength := PWord(cache)^;
-	cache := cache + SizeOf(filenamelength);
+	iterator := cache;
+	ExtractVar(iterator, texmeta, SizeOf(texmeta));
+	ExtractVar(iterator, filenamelength, SizeOf(filenamelength));
 	SetLength(filename, filenamelength);
-	Move(cache^, filename[1], filenamelength);
-	cache := cache + filenamelength;
-	Move(cache^, offset, SizeOf(offset));
-	cache := cache + SizeOf(offset);
-	Move(cache^, topdown, SizeOf(topdown));
+	ExtractVar(iterator, filename[1], filenamelength);
+	ExtractVar(iterator, offset, SizeOf(offset));
+	ExtractVar(iterator, topdown, SizeOf(topdown));
 
 	glGenTextures(1, @handle);
 	glBindTexture(GL_TEXTURE_2D, handle);
@@ -190,14 +188,14 @@ begin
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 
-  if checkGlVersion(4, 2) then
-    glTexStorage2D(GL_TEXTURE_2D, 1, texmeta.internalFormat, texmeta.width,
-      texmeta.height)
-  else
-    glTexImage2D(GL_TEXTURE_2D, 0, texmeta.internalFormat, texmeta.Width, texmeta.Height,
-      0, texmeta.format, texmeta.pixeltype, nil);
+	if checkGlVersion(4, 2) then
+		glTexStorage2D(GL_TEXTURE_2D, 1, texmeta.internalFormat, texmeta.Width,
+			texmeta.Height)
+	else
+		glTexImage2D(GL_TEXTURE_2D, 0, texmeta.internalFormat, texmeta.Width, texmeta.Height,
+			0, texmeta.format, texmeta.pixeltype, nil);
 
 	tmpfile := TFileStream.Create(filename, fmOpenRead);
 	tmpfile.Seek(offset, soBeginning);
@@ -220,10 +218,10 @@ begin
 
 		if topdown then
 			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, cnt, texmeta.Width, 1, texmeta.format,
-        texmeta.pixeltype, tmppnt)
+				texmeta.pixeltype, tmppnt)
 		else
 			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, texmeta.Height - 1 - cnt, texmeta.Width, 1,
-        texmeta.format, texmeta.pixeltype, tmppnt);
+				texmeta.format, texmeta.pixeltype, tmppnt);
 
 		Inc(cnt);
 	end;
@@ -284,7 +282,7 @@ begin
 	FreeMem(tmppnt, tmpword);
 end;
 
-function LoadTextureFromCache(cache: Pointer; cachesize: cardinal;
+function LoadTextureFromCache(const cache: Pointer; const cachesize: cardinal;
 	out conttype: TGameResourceType): TObject;
 var
 	texmeta: TTextureMeta;
@@ -304,18 +302,18 @@ begin
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 
-  if checkGlVersion(4, 2) then
-  begin
-    glTexStorage2D(GL_TEXTURE_2D, 1, texmeta.internalFormat, texmeta.width,
-      texmeta.height);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texmeta.width, texmeta.height,
-      texmeta.format, GL_UNSIGNED_BYTE, Pointer(cache + SizeOf(TTextureMeta)));
-  end
-  else
-    glTexImage2D(GL_TEXTURE_2D, 0, texmeta.internalFormat, texmeta.Width, texmeta.Height,
-      0, texmeta.format, texmeta.pixeltype, Pointer(cache + SizeOf(TTextureMeta)));
+	if checkGlVersion(4, 2) then
+	begin
+		glTexStorage2D(GL_TEXTURE_2D, 1, texmeta.internalFormat, texmeta.Width,
+			texmeta.Height);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texmeta.Width, texmeta.Height,
+			texmeta.format, GL_UNSIGNED_BYTE, Pointer(cache + SizeOf(TTextureMeta)));
+	end
+	else
+		glTexImage2D(GL_TEXTURE_2D, 0, texmeta.internalFormat, texmeta.Width, texmeta.Height,
+			0, texmeta.format, texmeta.pixeltype, Pointer(cache + SizeOf(TTextureMeta)));
 
 
 	Result := TGameTexture.Create;
@@ -378,7 +376,7 @@ begin
 	FreeMem(tmppnt, tmpword);
 end;
 
-function LoadTexMesh3FromCache(cache: Pointer; cachesize: cardinal;
+function LoadTexMesh3FromCache(const cache: Pointer; const cachesize: cardinal;
 	out conttype: TGameResourceType): TObject;
 var
 	vertexarray, vertexbuffer, indexlist: GLuint;
@@ -413,14 +411,14 @@ begin
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, modMeta.indexcount * SizeOf(GLuint),
 			Pointer(cache + vertexbytesize + SizeOf(TTexModelMeta)), GL_STATIC_DRAW);
 	end
-  else
-    indexlist := 0;
+	else
+		indexlist := 0;
 
-	Result := TGameModel.Create(spTexture, vertexarray, vertexbuffer, indexlist, 0,
-    modMeta.drawtype, modMeta.indexcount, modMeta.vertexcount);
+	Result := TGameModel.Create(spTexture, vertexarray, vertexbuffer,
+		indexlist, 0, modMeta.drawtype, modMeta.indexcount, modMeta.vertexcount);
 end;
 
-function LoadTexMesh2FromCache(cache: Pointer; cachesize: cardinal;
+function LoadTexMesh2FromCache(const cache: Pointer; const cachesize: cardinal;
 	out conttype: TGameResourceType): TObject;
 var
 	bytesize: longword;
@@ -453,11 +451,11 @@ begin
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, modMeta.indexcount * SizeOf(GLuint),
 			Pointer(cache + bytesize + SizeOf(TTexModelMeta)), GL_STATIC_DRAW);
 	end
-  else
-    indexlist := 0;
+	else
+		indexlist := 0;
 
-	Result := TGameModel.Create(spTexture, vertexarray, vertexbuffer, indexlist, 0,
-    modMeta.drawtype, modmeta.indexcount, modMeta.vertexcount);
+	Result := TGameModel.Create(spTexture, vertexarray, vertexbuffer,
+		indexlist, 0, modMeta.drawtype, modmeta.indexcount, modMeta.vertexcount);
 	conttype := grtModel;
 end;
 
@@ -544,8 +542,8 @@ begin
 			//fobj[9] := Vec3(-Size / 2, -Size / 2, Size / 2);       //32
 		end;
 		else
-			raise Exception.Create('Unsupported boundry for TexObjects '
-        + IntToStr(Ord(boundry)));
+			raise Exception.Create('Unsupported boundry for TexObjects ' +
+				IntToStr(Ord(boundry)));
 	end;
 
 	GameResourceAdd(GameTexMesh3Loader(Name, Length(fobj), @fobj[0],
@@ -585,8 +583,6 @@ begin
 		else
 			raise Exception.Create('Invalid boundry for TexObjects ' + IntToStr(Ord(boundry)));
 	end;
-
-	// Change the order?
 
 	GameResourceAdd(GameTexMesh2Loader(Name, Length(fobj), @fobj[0],
 		@ftexcoords[0], GL_TRIANGLE_STRIP, 0, nil), Name);

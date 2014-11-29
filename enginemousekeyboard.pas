@@ -170,7 +170,7 @@ begin
 end;
 
 //                                         mousebtn
-procedure DontMouseBtn({%H-}Key: PSDL_MouseButtonEvent; Value: Sint32);
+procedure DontMouseBtn({%H-}Key: PSDL_MouseButtonEvent; {%H-}Value: Sint32);
 begin
 
 end;

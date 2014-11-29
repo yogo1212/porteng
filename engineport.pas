@@ -8,7 +8,7 @@ interface
 uses
 	Classes, SysUtils, EngineDebug, EngineInput, EngineDevice, EngineStrings, GameContext,
 	EngineGUI, dglOpenGL, EngineUnit, EngineMath, EngineFacilities, EngineShader, GameGUI,
-	EngineTypes, EngineWorld, EngineCamera, Convenience, EngineMouseKeyboard, EngineObject,
+	EngineTypes, EngineWorld, EngineCamera, Convenience, EngineMouseKeyboard,
 	Math;
 
 type
@@ -23,7 +23,7 @@ type
 		// x,y,z-indexed array
 		MapCache: array[0..2, 0..2, 0..2] of TLoadedChunk;
 		mapoffset: byte;
-		OldRenderPos, tmpPosBuffer: TVec3;
+		OldRenderPos: TGamePosition;
 
 		rotaUnitXZproc, rotaUnitYproc, rotaCamXZproc, rotaCamYproc: TEventValueProc;
 		procedure DoRotaUnitXZ(Value: double);
@@ -245,14 +245,14 @@ begin
 	glLoadIdentity;
 
 {$IFDEF ENGINEDEBUG}
-	frameLogTrace('x ' + FloatToStr(camera.pos^.X) + 'y ' +
-		FloatToStr(camera.pos^.y) + 'z ' + FloatToStr(camera.pos^.z) +
+	frameLogTrace('x ' + FloatToStr(camera.pos^.offset.X) + 'y ' +
+		FloatToStr(camera.pos^.offset.y) + 'z ' + FloatToStr(camera.pos^.offset.z) +
 		' xzrota: ' + FloatToStr(camera.rota^.xzangle) + ' yrota: ' +
 		FloatToStr(camera.rota^.yangle));
 {$ENDIF}
 
 	camera.TranslateRotate;
-	SetViewOffset(mainUnit^.worldPos);
+	SetViewOffset(mainUnit^.pos.worldPos);
 
 	DrawAllUnits;
 
@@ -342,10 +342,8 @@ var
 begin
 	// TODO giev proper model
 	// EngineString('playerUnit_' + IntToStr(portno))
-	mainUnit := CreateUnit(0, EngineString('colPyramid'), Position(0, 12, 0),
-		XYZRotation(0, 0), 5, Vec3i(0, 0, 0));
-
-	tmpPosBuffer := mainUnit^.pos + Vec3(mainUnit^.worldPos);
+	mainUnit := CreateUnit(0, EngineString('colBall'), GamePosition(0, 12, 0, 0, 0, 0),
+		XYZRotation(0, 0), 5);
 
 	camera.Create(@mainUnit^.pos, 4, @camRota, gcFixed);
 
@@ -354,7 +352,7 @@ begin
 	for xit := 0 to 2 do
 		for yit := 0 to 2 do
 			for zit := 0 to 2 do
-				MapCache[xit, yit, zit].Create(mainUnit^.worldPos +
+				MapCache[xit, yit, zit].Create(mainUnit^.pos.worldPos +
 					Vec3i(xit - (mapoffset and $3), yit - ((mapoffset shr 2) and $3),
 					zit - ((mapoffset shr 4) and $3)));
 
@@ -487,13 +485,12 @@ begin
 	MapCache[2, 2, 1].UpdateRenderData(OldRenderPos, Min(sizeX, sizeY));
 	MapCache[2, 2, 2].UpdateRenderData(OldRenderPos, Min(sizeX, sizeY));
 
-	OldRenderPos := tmpPosBuffer;
+	OldRenderPos := mainUnit^.pos;
 end;
 
 procedure TGamePort.TryUpdatePos;
 begin
-	tmpPosBuffer := mainUnit^.pos + Vec3(mainUnit^.worldPos);
-	genericLookup(LengthSquare(OldRenderPos - tmpPosBuffer) > 100, @UpdateMapCache);
+	genericLookup(LengthSquare(OldRenderPos - mainUnit^.pos) > 100, @UpdateMapCache);
 end;
 
 constructor TGamePort.Create(inp: TInput);

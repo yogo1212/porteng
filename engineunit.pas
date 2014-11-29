@@ -5,7 +5,7 @@ unit EngineUnit;
 interface
 
 uses
-	Classes, SysUtils, EngineTypes, EngineObject, dglOpenGL, Math, EngineStrings,
+	Classes, SysUtils, EngineTypes, EngineObject, dglOpenGL, EngineStrings,
 	EngineMemory, EngineFacilities, EngineMath, EngineWorld, Convenience;
 
 type
@@ -23,8 +23,7 @@ type
 		state: TGameUnitPhysState;
 
 		constructor Create(newid: longword; model: TEngineString;
-			position: TGamePosition; rotation: TGameRotation; nspeed: GLfloat;
-			worldPosition: TRelWorldPosition);
+			position: TGamePosition; rotation: TGameRotation; nspeed: GLfloat);
 		procedure UpdateVelocity;
 	public
     deltapos: TVec3;
@@ -46,8 +45,7 @@ procedure PassAllUnitsTime(seconds: GLfloat);
 procedure DrawAllUnits;
 procedure GameUnitInit;
 function CreateUnit(newid: longword; Model: TEngineString; position: TGamePosition;
-	rotation: TGameRotation; nspeed: GLfloat;
-	worldPosition: TRelWorldPosition): PEngineUnit;
+	rotation: TGameRotation; nspeed: GLfloat): PEngineUnit;
 
 implementation
 
@@ -61,7 +59,7 @@ begin
 	Limit(unit_^.fallVelo, gravitationalMaxSpeed);
 	unit_^.tpos := unit_^.pos;
 	// TODO lookup
-	if CheckWorldCollision(unit_^.worldPos, unit_^.tpos, unit_^.fallVelo * seconds) then
+	if CheckWorldCollision(unit_^.tpos, unit_^.fallVelo * seconds) then
 	begin
 		unit_^.state := psGrounded;
 		unit_^.fallVelo.Y := 0;
@@ -71,22 +69,22 @@ end;
 
 procedure moveGrounded(unit_: PEngineUnit; seconds: GLfloat);
 begin
-	unit_^.tpos.y := unit_^.pos.y + unit_^.Speed / 2;
+	unit_^.tpos.offset.y := unit_^.pos.offset.y + unit_^.Speed / 2;
 	// TODO loooooookup
-	CheckWorldCollision(unit_^.worldPos, unit_^.tpos, unit_^.velo * seconds);
-	if not CheckWorldCollision(unit_^.worldPos, unit_^.tpos,
+	CheckWorldCollision(unit_^.tpos, unit_^.velo * seconds);
+	if not CheckWorldCollision(unit_^.tpos,
 		Vec3(0, -unit_^.Speed - 0.5 * seconds * seconds * gravitationalAcc, 0)) then
 	begin
 		unit_^.state := psFalling;
 		unit_^.fallVelo := unit_^.velo;
 	end;
-	unit_^.pos := unit_^.tpos;
+	unit_^.pos.offset := unit_^.tpos.offset;
 end;
 
 procedure moveFlying(unit_: PEngineUnit; seconds: GLfloat);
 begin
 	unit_^.tpos := unit_^.pos;
-	CheckWorldCollision(unit_^.worldPos, unit_^.tpos, unit_^.velo * seconds);
+	CheckWorldCollision(unit_^.tpos, unit_^.velo * seconds);
 	unit_^.pos := unit_^.tpos;
 end;
 
@@ -168,12 +166,11 @@ begin
 end;
 
 function CreateUnit(newid: longword; Model: TEngineString; position: TGamePosition;
-	rotation: TGameRotation; nspeed: GLfloat;
-	worldPosition: TRelWorldPosition): PEngineUnit;
+	rotation: TGameRotation; nspeed: GLfloat): PEngineUnit;
 var
 	tmpunit: TEngineUnit;
 begin
-	tmpunit.Create(newid, model, position, rotation, nspeed, worldPosition);
+	tmpunit.Create(newid, model, position, rotation, nspeed);
 	Result := units.Store(@tmpunit);
 end;
 
@@ -280,10 +277,9 @@ begin
 end;
 
 constructor TEngineUnit.Create(newid: longword; model: TEngineString;
-	position: TGamePosition; rotation: TGameRotation; nspeed: GLfloat;
-	worldPosition: TRelWorldPosition);
+	position: TGamePosition; rotation: TGameRotation; nspeed: GLfloat);
 begin
-	inherited Create(Model, rotation, position, worldPosition);
+	inherited Create(Model, rotation, position);
 	id := newid;
 	Speed := nspeed;
 	velo := Vec3(0, 0, 0);

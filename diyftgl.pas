@@ -11,7 +11,7 @@ uses
 	SDL2_ttf, SDL2;
 
 // Load a font by file name
-function FontInit(filename: string; Size, resolution: byte): byte;
+function FontInit(filename: string; Size: byte): byte;
 // Get bitmap for a string
 function GetString(fontid: byte; thing: string): TEngineString;
 // Init the whole font thingy
@@ -55,7 +55,7 @@ begin
 	end;
 end;
 
-function FontInit(filename: string; size, resolution: byte): byte;
+function FontInit(filename: string; Size: byte): byte;
 var
 	zhlr: byte;
 begin
@@ -69,7 +69,7 @@ begin
 	end;
 	if zhlr <= maxfontindex then
 		try
-			fonts[zhlr] := TTF_OpenFont(PChar(filename), 72);
+			fonts[zhlr] := TTF_OpenFont(PChar(filename), Size);
 			//TTF_SetFontOutline(fonts[zhlr], 1);
 			TTF_SetFontKerning(fonts[zhlr], 1);
 			Result := zhlr;
