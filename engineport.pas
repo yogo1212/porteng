@@ -259,11 +259,9 @@ begin
 {$IFDEF USEDEPTHACCU}
 {$ENDIF}
 
-	RenderWorldObjects;
-
-	//glDisable(GL_CULL_FACE);
 	RenderWorld;
-	//glEnable(GL_CULL_FACE);
+
+	RenderWorldObjects;
 
 	glDisable(GL_DEPTH_TEST);
 	HUD.DrawSelf;
