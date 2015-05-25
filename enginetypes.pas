@@ -9,13 +9,13 @@ uses
 
 type
 
-{$IF sizeof(glfloat) = sizeof(glint)}
-  Tglfloatsizedint = glint;
-{$ELSEIF }
+{$IF sizeof(glfloat) = sizeof(gluint)}
+  Tglfloatsizedint = gluint;
+{$ELSE}
   ERROR!
 {$ENDIF}
 
-  Pglfloatsizedint = ^Tglfloatsizedint;
+  Pglfloatsizeduint = ^Tglfloatsizedint;
 
 	TIntFloat = record
 		case boolean of

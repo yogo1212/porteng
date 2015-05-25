@@ -29,7 +29,7 @@ type
 			False:		// 3-bit-index, 1st bit is x, 2nd y and 3rd z
 			// two bits are addressed
 			(map,
-				// actual childs are this far away [TOcEntryPlain]
+				// childs are this far away [TOcEntryPlain]
 				offset: word);
 			// if this OcData
 			True: (id: cardinal);
@@ -43,7 +43,7 @@ type
 		function Recurse(index: byte): TOcEntry;
 		function SubColour: TCol4b;
 		function TranslateColour(index: byte): TCol4b;
-    // this works with half-sizes. as does the shader.
+		// this works with half-sizes. as does the shader.
 		procedure GetVoxelData(relrenderPos: TVec3; var destpnt: PVoxelInfo;
 			pos: TVec3; size: GLfloat; LoDper1: word; curCol: TCol4b);
 	end;
@@ -103,7 +103,7 @@ type
 
 		procedure FillRenderData;
 		procedure DontUpdateRenderData(const {%H-}nAbsViewPos: TGamePosition;
-      const {%H-}nLoDper1: word);
+			const {%H-}nLoDper1: word);
 		procedure DoDraw;
 	public
 		chunk: TWorldChunk;
@@ -251,7 +251,7 @@ const
 		(@CastRayEmpty, @CastRayFull, @CastRayRec, @CastRayEmpty);
 
 procedure DontProgressVectorComponent(const {%H-}pos, {%H-}dir: GLfloat;
-  var {%H-}Result: GLfloat);
+	var {%H-}Result: GLfloat);
 begin
 
 end;
@@ -259,16 +259,31 @@ end;
 procedure DoProgressVectorComponent(const pos, dir: GLfloat; var Result: GLfloat);
 var
 	offset: TIntFloat;
+	tmp: GLdouble;
+{
+  what is this function for?
+  it deals with the problem that we want know how far ray cast in the unit-cube can travel
+  before it hits a wall.
+  pos is in [-1;1]
+  instead of branching and doing two divisions..
+  pos is translated to a space in [-2;0] or [0;2] (depending on the sign of dir) and
+  stored in offset.floatval
+  this translated value now get's the same sign as dir
+}
 begin
-	//This gives a float with same sign of dir
+	//This gives a unit float with same sign of dir
 	offset.floatval := 1;
-	offset.intval := offset.intval or (Pglfloatsizedint(@dir)^ and glfloatsignbit);
+	offset.intval := offset.intval or (Pglfloatsizeduint(@dir)^ and glfloatsignbit);
 	// and adds it to pos
 	offset.floatval := pos - offset.floatval;
-	offset.intval := (offset.intval and not glfloatsignbit) or
-		(Pglfloatsizedint(@dir)^ and glfloatsignbit);
-	// TODO there was a sigfpe .. and again. after some time of doing nothing
-	Result := Min(offset.floatval / dir, Result);
+	// now the result needs to have the same size as dir because of the sign of the offset
+	offset.intval := offset.intval xor glfloatsignbit;
+
+	// don't run into sigfpe
+	tmp := GLdouble(offset.floatval) / dir;
+	// TODO sse?
+	Result := Min(tmp, Result);
+	// no else necessary because result is expected to be 1 at most.
 end;
 
 type
@@ -283,32 +298,33 @@ function CastRayEmpty(const ocentry: TOcEntry; var pos: TVec3;
 var
 	m: GLfloat;
 begin
-	// TODO improve this:
-
 	{
+  intersection of ray with unit cube (3 planes)
   the ray being s + m * d = r; where s, d and r are vectors
-  the plane being n * (x - t) = 0 - all of them vectors (except for zero).
-  in our case all vectors are translated so that the current voxel is a cube with a
-  length of 2 located at the origin.
+  the planes being n * (x - t) = 0 - all of them vectors (except for zero).
+  we only need to check againt the 3 planes dir is pointing at (pointing at from within
+  the cube) e.g. for dir.x > 0 that can only be (1,s,t) (normal and point are identical).
+  in our case all vectors are already translated in a way that the current voxel is a
+  cube with a length of 2 located at origin.
   that way t and n are identical and unit.
 
   // substituting r for x yields: -n*(n - t) / n*d = m
 
   but: n will only be a vector with two components being 0 and one being either 1 or -1
   => n*n is always one.
+  so for each plan this is the equation: (1 - t_c) / (n_c * d_c) = m
   Otherwise, the dot-product is equivalent to a projection and a potential sign-toggle.
   }
 
 	m := 1;
 
-	//This gives a float with the same sign as dir.X
 	progressVectorComponent[direction.X <> 0](pos.X, direction.X, m);
 	progressVectorComponent[direction.Y <> 0](pos.Y, direction.Y, m);
 	progressVectorComponent[direction.Z <> 0](pos.Z, direction.Z, m);
 
-	// two possible branches so far (min)
+	// 3 possible branches so far (min)  (0 with sse)
 
-	// if the pos is not inside the unit-sized cube at origin, then m could be zero(or less)
+	// if pos is not inside the unit-sized cube at origin, then m could be zero(or less)
 	// and there would have to be checks here.
 	pos += direction * m;
 	direction *= (1 - m);
@@ -337,9 +353,9 @@ begin
 	// pos should be zero and changing the sign should only be relevant for our tweaks
 	// if in doubt, this can be solved with branching, because the case of one component of
 	// a vector being zero should not occur to often
-	Pglfloatsizedint(pos)^ := Pglfloatsizedint(pos)^ and not glfloatsignbit;
-	Pglfloatsizedint(pos)^ := Pglfloatsizedint(pos)^ xor
-		(Pglfloatsizedint(@direction)^ and glfloatsignbit);
+	Pglfloatsizeduint(pos)^ := Pglfloatsizeduint(pos)^ and not glfloatsignbit;
+	Pglfloatsizeduint(pos)^ := Pglfloatsizeduint(pos)^ xor
+		(Pglfloatsizeduint(@direction)^ and glfloatsignbit);
 end;
 
 type
@@ -366,16 +382,16 @@ var
 begin
 	prepareSigns(pos, direction);
 
-	index := (((Pglfloatsizedint(@pos.X)^ and glfloatsignbit) shr glfloatsignbitindex) or
-		((Pglfloatsizedint(@pos.Y)^ and glfloatsignbit) shr (glfloatsignbitindex - 1)) or
-		((Pglfloatsizedint(@pos.Z)^ and glfloatsignbit) shr
+	index := (((Pglfloatsizeduint(@pos.X)^ and glfloatsignbit) shr glfloatsignbitindex) or
+		((Pglfloatsizeduint(@pos.Y)^ and glfloatsignbit) shr (glfloatsignbitindex - 1)) or
+		((Pglfloatsizeduint(@pos.Z)^ and glfloatsignbit) shr
 		(glfloatsignbitindex - 2))) xor $7;
 	{writeln(
-    chr(((Pglfloatsizedint(@pos.X)^ and glfloatsignbit) shr glfloatsignbitindex)
+    chr(((Pglfloatsizeduint(@pos.X)^ and glfloatsignbit) shr glfloatsignbitindex)
       + Ord('0')),
-    chr(((Pglfloatsizedint(@pos.Y)^ and glfloatsignbit) shr (glfloatsignbitindex - 1))
+    chr(((Pglfloatsizeduint(@pos.Y)^ and glfloatsignbit) shr (glfloatsignbitindex - 1))
       + Ord('0')),
-    chr(((Pglfloatsizedint(@pos.Z)^ and glfloatsignbit) shr (glfloatsignbitindex - 2))
+    chr(((Pglfloatsizeduint(@pos.Z)^ and glfloatsignbit) shr (glfloatsignbitindex - 2))
       + Ord('0')));}
 
 	direction *= 2;
@@ -393,14 +409,14 @@ begin
 	begin
 		prepareSigns(pos, direction);
 
-		index := (((Pglfloatsizedint(@pos.X)^ and glfloatsignbit) shr glfloatsignbitindex) or
-			((Pglfloatsizedint(@pos.Y)^ and glfloatsignbit) shr (glfloatsignbitindex - 1)) or
-			((Pglfloatsizedint(@pos.Z)^ and glfloatsignbit) shr
+		index := (((Pglfloatsizeduint(@pos.X)^ and glfloatsignbit) shr
+			glfloatsignbitindex) or ((Pglfloatsizeduint(@pos.Y)^ and glfloatsignbit) shr
+			(glfloatsignbitindex - 1)) or ((Pglfloatsizeduint(@pos.Z)^ and glfloatsignbit) shr
 			(glfloatsignbitindex - 2))) xor $7;
 
 		direction *= 2;
-		pos := (pos - Vec3((index and 1) - 0.5, ((index shr 1) and 1) - 0.5,
-			((index shr 2) and 1) - 0.5)) * 2;
+		pos := (pos - Vec3((index and 1) - 0.5, ((index shr 1) and 1) -
+			0.5, ((index shr 2) and 1) - 0.5)) * 2;
 
 		Result := CastRayOctree[ocentry.Get(index)](ocentry.Recurse(index), pos, direction);
 
@@ -426,8 +442,8 @@ type
 	TCorrectComponentProc = procedure(var worldPos: GLint; var pos: GLfloat;
 		const dir: GLfloat; var flag: boolean); register;
 
-procedure DontTryCorrectComponent(var {%H-}worldPos: GLint; var {%H-}pos: GLfloat;
-	const {%H-}dir: GLfloat; var {%H-}flag: boolean);
+procedure DontTryCorrectComponent(var {%H-}worldPos: GLint;
+	var {%H-}pos: GLfloat; const {%H-}dir: GLfloat; var {%H-}flag: boolean);
 begin
 
 end;
@@ -436,14 +452,14 @@ procedure DoTryCorrectComponent(var worldPos: GLint; var pos: GLfloat;
 	const dir: GLfloat; var flag: boolean);
 begin
 	if (pos > worldChunkSize / 2) or ((pos = worldChunkSize / 2) and
-		((Pglfloatsizedint(@dir)^ and glfloatsignbit) = 0)) then
+		((Pglfloatsizeduint(@dir)^ and glfloatsignbit) = 0)) then
 	begin
 		pos -= worldChunkSize;
 		worldPos += 1;
 		flag := True;
 	end
 	else if (pos < -worldChunkSize / 2) or ((pos = -worldChunkSize / 2) and
-		((Pglfloatsizedint(@dir)^ and glfloatsignbit) <> 0)) then
+		((Pglfloatsizeduint(@dir)^ and glfloatsignbit) <> 0)) then
 	begin
 		pos += worldChunkSize;
 		worldPos -= 1;
@@ -489,7 +505,7 @@ begin
 		if activechunks.Fetch(@tmpchunk) then
 			Result := CastRayOctree[OcRec](tmpchunk.octree, pos.offset, movement)
 		else
-    // TODO remove this branch?
+			// TODO remove this branch?
 			Result := CastRayOctree[OcEmpty](tmpchunk.octree, pos.offset, movement);
 
 		MiauToRel(pos.offset, movement, worldChunkSize / 2);
@@ -826,7 +842,6 @@ begin
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribDivisor(0, 0);
-	// NOOOOOO HOLY FUKING SHIET!! HAD SIZEOF MULTIPLIED BY #!! EMBARRASSING
 	glVertexAttribPointer(0, 3, GL_FLOAT, bytebool(GL_FALSE), SizeOf(TVec3), nil);
 
 	glBindBuffer(GL_ARRAY_BUFFER, chunk^.vertexbuffer);
@@ -970,6 +985,7 @@ begin
 		Inc(it);
 	end;
 end;
+
 
 initialization
 	mapDataPath := EnforceDir('map');
