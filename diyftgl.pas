@@ -68,21 +68,25 @@ begin
 		Inc(zhlr);
 	end;
 	if zhlr <= maxfontindex then
+	begin
+		fonts[zhlr] := TTF_OpenFont(PChar(filename), Size);
+		if fonts[zhlr] = nil then
+			raise Exception.Create('Couldn'' load font: ' + filename);
 		try
-			fonts[zhlr] := TTF_OpenFont(PChar(filename), Size);
-			//TTF_SetFontOutline(fonts[zhlr], 1);
 			TTF_SetFontKerning(fonts[zhlr], 1);
 			Result := zhlr;
 		except
 			FreeAndNil(fonts[zhlr]);
-		end
+			raise Exception.Create('Couldn'' set kerning for ' + filename);
+		end;
+	end
 	else
 		raise Exception.Create('Cant hold more fonts..');
 end;
 
 function GetString(fontid: byte; thing: string): TEngineString;
 var
-  surf: PSDL_Surface;
+	surf: PSDL_Surface;
 begin
 	Result := EngineString(thing, dispStringXSalt, dispStringDSalt);
 
@@ -100,7 +104,8 @@ begin
 {$IFDEF ENGINEDEBUG}
 		else
 			raise Exception.Create('invalid pixelformat for font-rendering. ouch.');
-{$ENDIF}     ;
+{$ENDIF}
+		;
 
 		SDL_FreeSurface(surf);
 	end;
