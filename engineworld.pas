@@ -511,7 +511,7 @@ begin
 		MiauToRel(pos.offset, movement, worldChunkSize / 2);
 
 		flag := TryNormalise(pos);
-	until not flag;
+	until not flag or Result;
 end;
 
 function finaliseColour(const input: TCol4b): TCol4b;
