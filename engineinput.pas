@@ -220,64 +220,64 @@ begin
 	case evt of
 		ieLockTurnLookXYZ:
 		begin
-		  if states[evt] = 0 then
-      begin
-        if states[ieMakeCursorMotionTurnAndLock] = 0 then
-		 	  	UnlockRotaProc();
-      end
-      else
-      begin
-        if states[ieMakeCursorMotionTurnAndLock] = 0 then
-			  	LockRotaProc();
-      end;
+			if states[evt] = 0 then
+			begin
+				if states[ieMakeCursorMotionTurnAndLock] = 0 then
+					UnlockRotaProc();
+			end
+			else
+			begin
+				if states[ieMakeCursorMotionTurnAndLock] = 0 then
+					LockRotaProc();
+			end;
 		end;
 		ieMakeCursorMotionLook:
 		begin
 			if states[evt] = 0 then
 			begin
-        if states[ieMakeCursorMotionTurnAndLock] = 0 then
-        begin
-  				SDL_SetRelativeMouseMode(False);
-  				addBinding(Ord(mtkMotionX), TEngineInputElement.ieCursorX);
-  				addBinding(Ord(mtkMotionY), TEngineInputElement.ieCursorY);
-        end;
+				if states[ieMakeCursorMotionTurnAndLock] = 0 then
+				begin
+					SDL_SetRelativeMouseMode(False);
+					addBinding(Ord(mtkMotionX), TEngineInputElement.ieCursorX);
+					addBinding(Ord(mtkMotionY), TEngineInputElement.ieCursorY);
+				end;
 			end
 			else
 			begin
 				// TODO make this work independently of input-types
-        if states[ieMakeCursorMotionTurnAndLock] = 0 then
-        begin
-				  addBinding(Ord(mtkMotionX), TEngineInputElement.ieLookRelTickXZ);
-				  addBinding(Ord(mtkMotionY), TEngineInputElement.ieLookRelTickY);
-				  SDL_SetRelativeMouseMode(True);
-			  end;
-      end;
+				if states[ieMakeCursorMotionTurnAndLock] = 0 then
+				begin
+					addBinding(Ord(mtkMotionX), TEngineInputElement.ieLookRelTickXZ);
+					addBinding(Ord(mtkMotionY), TEngineInputElement.ieLookRelTickY);
+					SDL_SetRelativeMouseMode(True);
+				end;
+			end;
 		end;
-    ieMakeCursorMotionTurnAndLock:
+		ieMakeCursorMotionTurnAndLock:
 		begin
 			if states[evt] = 0 then
 			begin
-        if states[ieLockTurnLookXYZ] = 0 then
-			  	UnLockRotaProc();
-        if states[ieMakeCursorMotionLook] = 0 then
-        begin
-  				SDL_SetRelativeMouseMode(False);
-  				addBinding(Ord(mtkMotionX), TEngineInputElement.ieCursorX);
-  				addBinding(Ord(mtkMotionY), TEngineInputElement.ieCursorY);
-        end;
+				if states[ieLockTurnLookXYZ] = 0 then
+					UnLockRotaProc();
+				if states[ieMakeCursorMotionLook] = 0 then
+				begin
+					SDL_SetRelativeMouseMode(False);
+					addBinding(Ord(mtkMotionX), TEngineInputElement.ieCursorX);
+					addBinding(Ord(mtkMotionY), TEngineInputElement.ieCursorY);
+				end;
 			end
 			else
 			begin
 				// TODO make this work independently of input-types
-        if states[ieMakeCursorMotionLook] = 0 then
-        begin
-				  addBinding(Ord(mtkMotionX), TEngineInputElement.ieLookRelTickXZ);
-				  addBinding(Ord(mtkMotionY), TEngineInputElement.ieLookRelTickY);
-				  SDL_SetRelativeMouseMode(True);
-			  end;
-        if states[ieLockTurnLookXYZ] = 0 then
-			  	LockRotaProc();
-      end;
+				if states[ieMakeCursorMotionLook] = 0 then
+				begin
+					addBinding(Ord(mtkMotionX), TEngineInputElement.ieLookRelTickXZ);
+					addBinding(Ord(mtkMotionY), TEngineInputElement.ieLookRelTickY);
+					SDL_SetRelativeMouseMode(True);
+				end;
+				if states[ieLockTurnLookXYZ] = 0 then
+					LockRotaProc();
+			end;
 		end;
 	end;
 end;
