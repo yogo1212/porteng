@@ -18,7 +18,7 @@ var
 	initialised: boolean = False;
 	testobj, textobj, testbmpobj: TGameGraphicsObj;
 	testname, textname, testbmpname: TEngineString;
-  ballname: TEngineString;
+	ballname: TEngineString;
 
 procedure SetupTextObj;
 var
@@ -60,7 +60,7 @@ end;
 
 procedure SetupTestBall;
 begin
-  ballname := EngineString('colBall');
+	ballname := EngineString('colBall');
 	GameResourceAdd(ColouredBallModelLoader(1, 3, Vec3(0, 1, 0), ballname), ballname);
 end;
 
@@ -103,7 +103,7 @@ begin
 		SetupTestObj;
 		SetupTextObj;
 		SetupBMPTestObj;
-    SetupTestBall;
+		SetupTestBall;
 
 
 		AddFreeRoutine(@GameMapCleanup);
