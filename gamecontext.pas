@@ -33,6 +33,7 @@ begin
 	GameResourceAdd(GameTexModLoader(textname, tmpmodel, tmptex), textname);
 
 	textobj := GetTextObj(textname);
+	textobj.pos.offset += Vec3(0, 0, 1);
 end;
 
 procedure SetupBMPTestObj;
