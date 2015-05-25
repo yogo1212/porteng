@@ -80,7 +80,10 @@ begin
 		GameResourceUnUnse(testname);
 		GameResourceUnUnse(textname);
 		GameResourceUnUnse(testbmpname);
-		GameResourceUnUnse(ballname);
+		GameResourceDelete(testname);
+		GameResourceDelete(textname);
+		GameResourceDelete(testbmpname);
+		GameResourceDelete(ballname);
 	end;
 end;
 
