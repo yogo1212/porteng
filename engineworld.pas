@@ -473,6 +473,7 @@ const
 
 function TryNormalise(var pos: TGamePosition): boolean;
 begin
+	Result := False;
 	if Abs(pos.offset.X) > worldChunkSize / 2 then
 	begin
 		normaliseWorldPos(pos.worldPos.X, pos.offset.X);
@@ -496,7 +497,6 @@ var
 	flag: boolean;
 begin
 	repeat
-		flag := False;
 		tmpchunk.position := pos.worldPos;
 
 		RelToMiau(pos.offset, movement, worldChunkSize / 2);
