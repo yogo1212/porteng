@@ -651,9 +651,9 @@ end;
 
 function TOcEntry.TranslateColour(index: byte): TCol4b;
 begin
-	Result := Col4b(Ord(Get((0 + index) and $7)) + Ord(Get((4 + index) and $7)),
+	Result := Col4b(Ord(Get((2 + index) and $7)) + Ord(Get((0 + index) and $7)),
 		Ord(Get((1 + index) and $7)) + Ord(Get((5 + index) and $7)),
-		Ord(Get((2 + index) and $7)) + Ord(Get((6 + index) and $7)),
+		Ord(Get((6 + index) and $7)) + Ord(Get((4 + index) and $7)),
 		Ord(Get((3 + index) and $7)) + Ord(Get((7 + index) and $7))) * $30;
 end;
 
