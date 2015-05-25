@@ -5,9 +5,10 @@ program DING;
 
 uses {$IFDEF UNIX} {$IFDEF UseCThreads}
 	cthreads, {$ENDIF} {$ENDIF}
-
-	convenience,
+	SysUtils,
 	dglOpenGL,
+	SDL2,
+	convenience,
 	diyftgl,
 	PortEngProj,
 	EngineCamera,
@@ -32,7 +33,7 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
 	EngineResourceLoader,
 	EngineResourceTexture,
 	EngineShader,
-  EngineShape,
+	EngineShape,
 	EngineShaderBuilder,
 	EngineStringComparer,
 	EngineStrings,
@@ -45,11 +46,9 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
 	EngineWorld,
 	GameContext,
 	GameGUI,
-  GameSpell,
-  GameStats,
-  GameUnit,
-	SDL2,
-	SysUtils;
+	GameSpell,
+	GameStats,
+	GameUnit;
 
 {$R *.res}
 
