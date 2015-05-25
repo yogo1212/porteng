@@ -10,7 +10,7 @@ uses
 
 function ColouredPyramidModelLoader(const scale: GLfloat;
 	const Name: TEngineString): TResourceBuilderType;
-function ColouredBallModelLoader(const radius: GLfloat; detail: word;
+function ColouredBallModelLoader(const radius: GLfloat; detail: word; const offset: TVec3;
 	const Name: TEngineString): TResourceBuilderType;
 
 implementation
@@ -155,7 +155,7 @@ begin
 	Freemem(Data, bytesize);
 end;
 
-function ColouredBallModelLoader(const radius: GLfloat; detail: word;
+function ColouredBallModelLoader(const radius: GLfloat; detail: word; const offset: TVec3;
 	const Name: TEngineString): TResourceBuilderType;
 var
 	vertices: array of TVec3;
@@ -176,7 +176,7 @@ begin
 	begin
 		colours[i] := Col3((vertices[i] + Vec3(1, 1, 1)) / 2);
 		//colours[i] := Col3(1, 1, 1);
-		vertices[i] *= radius;
+		vertices[i] := vertices[i] * radius + offset;
 	end;
 
 	bytesize := SizeOf(GLenum) + 2 * SizeOf(cardinal) + Length(vertices) *

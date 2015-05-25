@@ -61,7 +61,7 @@ end;
 procedure SetupTestBall;
 begin
   ballname := EngineString('colBall');
-	GameResourceAdd(ColouredBallModelLoader(2, 3, ballname), ballname);
+	GameResourceAdd(ColouredBallModelLoader(1, 3, Vec3(0, 1, 0), ballname), ballname);
 end;
 
 procedure RenderWorldObjects;
