@@ -56,7 +56,7 @@ procedure GameResourceAdd(btype : TResourceBuilderType;
 procedure GameResourceFreeUnused;
 function GameResourceUse(rPath: TEngineString; rtype: TGameResourceType): Pointer;
 function GameResourceHas(rPath: TEngineString; rtype: TGameResourceType): Boolean;
-procedure GameResourceUnUnse(rPath: TEngineString);
+procedure GameResourceUnUnse(const rPath: TEngineString);
 procedure GameResourceDelete(rPath: TEngineString);
 
 implementation
@@ -132,7 +132,7 @@ begin
   Result := (resources.Fetch(@tmpres)) and (rtype = tmpres.resourceType);
 end;
 
-procedure GameResourceUnUnse(rPath: TEngineString);
+procedure GameResourceUnUnse(const rPath: TEngineString);
 var tmpres: TGameResource;
 begin
   tmpres.Name := rPath;
@@ -146,6 +146,7 @@ begin
       resources.Store(@tmpres);
     end
     else
+      // TODO don't crash game
       raise Exception.Create(GetRealValue(rPath) + ' is already unused');
   end;
 end;
