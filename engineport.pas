@@ -345,7 +345,7 @@ begin
 	mainUnit := CreateUnit(0, EngineString('colBall'), GamePosition(0, 12, 0, 0, 0, 0),
 		XYZRotation(0, 0), 5);
 
-	camera.Create(@mainUnit^.pos, 4, @camRota, gcFixed);
+	camera.Create(@mainUnit^.pos, Vec3(0, 1, 0), 4, @camRota, gcFixed);
 
 	mapoffset := $15;
 
