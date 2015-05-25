@@ -27,12 +27,7 @@ begin
     // Initialise the font-subsystem
     GameFontInit;
     // Initialise this particular font
-    try
-      font := FontInit(sansfile, 72);
-    except
-      on E: Exception do raise Exception.Create('Couldn''t load font-file "' + sansfile
-        + '": ' + E.Message);
-    end;
+    font := FontInit(sansfile, 72);
   end;
 end;
 
