@@ -43,6 +43,7 @@
       <Unit2>
         <Filename Value="enginecamera.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineCamera"/>
       </Unit2>
       <Unit3>
         <Filename Value="enginedevice.pas"/>
@@ -73,11 +74,11 @@
       <Unit8>
         <Filename Value="enginethread.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineThread"/>
       </Unit8>
       <Unit9>
         <Filename Value="enginetypes.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="EngineTypes"/>
       </Unit9>
       <Unit10>
         <Filename Value="enginegui.pas"/>
@@ -94,6 +95,7 @@
       <Unit13>
         <Filename Value="enginetimer.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineTimer"/>
       </Unit13>
       <Unit14>
         <Filename Value="engineunit.pas"/>
@@ -176,6 +178,7 @@
       <Unit33>
         <Filename Value="enginememory.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineMemory"/>
       </Unit33>
       <Unit34>
         <Filename Value="enginestringcomparer.pas"/>
@@ -184,7 +187,6 @@
       <Unit35>
         <Filename Value="enginefileutils.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="EngineFileUtils"/>
       </Unit35>
       <Unit36>
         <Filename Value="engineworld.pas"/>
@@ -198,7 +200,6 @@
       <Unit38>
         <Filename Value="gamespell.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="GameSpell"/>
       </Unit38>
       <Unit39>
         <Filename Value="gamestats.pas"/>
