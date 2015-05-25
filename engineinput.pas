@@ -19,6 +19,7 @@ type
 		ieTurnRelTickXZ, ieTurnRelTickY, ieLookRelTickXZ, ieLookRelTickY,
 		ieCursorTickX, ieCursorTickY,
 		ieZoomTickX, ieZoomTickY,
+		ieNoclip,
 		// The following can be used to express atomar GIEs (states);
 		ieMoveRelXp, ieMoveRelXn, ieMoveRelYp, ieMoveRelYn, ieMoveRelZp, ieMoveRelZn,
 		ieCursorXp, ieCursorXn, ieCursorYp, ieCursorYn, ieLookRelXZp, ieLookRelXZn,
@@ -368,6 +369,7 @@ begin
 		addBinding(SDL_SCANCODE_G, TEngineInputElement.ieTurnRelYn);
 		addBinding(SDL_SCANCODE_F, TEngineInputElement.ieTurnRelXZn);
 		addBinding(SDL_SCANCODE_H, TEngineInputElement.ieTurnRelXZp);
+		addBinding(SDL_SCANCODE_N, TEngineInputElement.ieNoclip);
 		addBinding(SDL_SCANCODE_B, TEngineInputElement.ieZoomn);
 		addBinding(SDL_SCANCODE_V, TEngineInputElement.ieZoomp);
 		addBinding(SDL_SCANCODE_X, TEngineInputElement.ieAlignCam);

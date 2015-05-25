@@ -405,6 +405,11 @@ begin
 				mainUnit^.SetRota(camRota);
 		ieCursorTickX, ieCursorTickY,
 		ieZoomTickX: ;
+    ieNoclip:
+      if mainUnit^.state = psNoclip then
+        mainUnit^.state := psGrounded
+      else
+        mainUnit^.state := psNoclip;
 	end;
 end;
 

@@ -10,7 +10,7 @@ uses
 
 type
 
-	TGameUnitPhysState = (psFalling, psGrounded, psFlying);
+	TGameUnitPhysState = (psFalling, psGrounded, psFlying, psNoclip);
 
 	{ TEngineUnit }
 
@@ -20,7 +20,6 @@ type
 		velo, relamov, fallVelo: TVec3;
 		tpos: TGamePosition;
 		id: longword;
-		state: TGameUnitPhysState;
 
 		constructor Create(newid: longword; model: TEngineString;
 			position: TGamePosition; rotation: TGameRotation; nspeed: GLfloat);
@@ -28,6 +27,7 @@ type
 	public
     deltapos: TVec3;
 		speed: GLfloat;
+		state: TGameUnitPhysState;
 
 		procedure rotateYclamped(amountxz, amounty: GLfloat);
 		procedure Jump;
@@ -88,6 +88,12 @@ begin
 	unit_^.pos := unit_^.tpos;
 end;
 
+procedure moveNoclip(unit_: PEngineUnit; seconds: GLfloat);
+begin
+	unit_^.tpos.offset += unit_^.velo * seconds;
+  TryNormalise(unit_^.tpos);
+end;
+
 type
 
 	TGameUpdateProc = procedure(notif: TObjProc);
@@ -104,7 +110,7 @@ type
 
 var
 	move: array[TGameUnitPhysState] of
-	TGameUnitTimeProc = (@moveFalling, @moveGrounded, @moveFlying);
+	TGameUnitTimeProc = (@moveFalling, @moveGrounded, @moveFlying, @moveNoclip);
 
 procedure DoUpdate(notif: TObjProc);
 begin
