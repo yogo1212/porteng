@@ -15,11 +15,12 @@ type
 		camMode: TGameCameraMode;
 		runTR: array[TGameCameraMode] of TObjProc;
 		pos: PGamePosition;
+		viewOffs: TVec3;
 		dist: GLfloat; // this is only for fixed mode
 		rota: PGameRotation;
 		procedure modDistance(amount: GLfloat);
-		constructor Create(position: PGamePosition; distance: GLfloat;
-			rotation: PGameRotation; mode: TGameCameraMode);
+		constructor Create(position: PGamePosition; viewOffset: TVec3;
+			distance: GLfloat; rotation: PGameRotation; mode: TGameCameraMode);
 		procedure TranslateRotate;
 		procedure FreeTR;
 		procedure FixedTR;
@@ -43,27 +44,33 @@ end;
 
 procedure TGameCamera.FreeTR;
 begin
-	gluLookAt(pos^.offset.x, pos^.offset.y, pos^.offset.z, pos^.offset.X + (sin(rota^.xzangle) * cos(rota^.yangle)),
-		pos^.offset.Y + sin(rota^.yangle), pos^.offset.Z - (cos(rota^.xzangle) *
-		cos(rota^.yangle)), 0, 1, 0);
+	gluLookAt(pos^.offset.x, pos^.offset.y, pos^.offset.z, pos^.offset.X +
+		(sin(rota^.xzangle) * cos(rota^.yangle)),
+		pos^.offset.Y + sin(rota^.yangle), pos^.offset.Z -
+		(cos(rota^.xzangle) * cos(rota^.yangle)), 0, 1, 0);
 end;
 
 procedure TGameCamera.FixedTR;
+var
+	tmp: TVec3;
 begin
-	gluLookAt(pos^.offset.X + (sin(rota^.xzangle) * cos(rota^.yangle)) * dist,
-		pos^.offset.Y + sin(rota^.yangle) * dist, pos^.offset.Z -
-		(cos(rota^.xzangle) * cos(rota^.yangle)) * dist,
-		pos^.offset.x, pos^.offset.y, pos^.offset.z, 0, 1, 0);
+	tmp := Vec3(pos^.offset.X + viewOffs.X, pos^.offset.Y + viewOffs.Y,
+		pos^.offset.Z + viewOffs.Z);
+	gluLookAt(tmp.X + (sin(rota^.xzangle) * cos(rota^.yangle)) * dist,
+		tmp.Y + sin(rota^.yangle) * dist,
+		tmp.Z - (cos(rota^.xzangle) * cos(rota^.yangle)) * dist,
+		tmp.X, tmp.Y, tmp.Z, 0, 1, 0);
 end;
 
-constructor TGameCamera.Create(position: PGamePosition; distance: GLfloat;
-	rotation: PGameRotation; mode: TGameCameraMode);
+constructor TGameCamera.Create(position: PGamePosition; viewOffset: TVec3;
+	distance: GLfloat; rotation: PGameRotation; mode: TGameCameraMode);
 begin
 	camMode := mode;
 
 	rota := rotation;
 	dist := distance;
 	pos := position;
+	viewOffs := viewOffset;
 
 	runTR[gcFree] := @FreeTR;
 	runTR[gcFixed] := @FixedTR;
