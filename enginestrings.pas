@@ -2,7 +2,7 @@ unit EngineStrings;
 
 {$mode objfpc}{$H+}
 
-{$undef ENGINEDEBUG}
+{$define ENGINEDEBUG}
 {$T+}
 interface
 
