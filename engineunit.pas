@@ -69,6 +69,7 @@ end;
 
 procedure moveGrounded(unit_: PEngineUnit; seconds: GLfloat);
 begin
+  // TODO this needs to be normalised
 	unit_^.tpos.offset.y := unit_^.pos.offset.y + unit_^.Speed / 2;
 	// TODO loooooookup
 	CheckWorldCollision(unit_^.tpos, unit_^.velo * seconds);
