@@ -277,7 +277,7 @@ begin
 	begin
 		velo.X := (relamov.Z * sin(rota.xzangle) - relamov.X *
 			cos(rota.xzangle)) * Speed;
-		velo.Y := 0;// (relamov.Z * sin(rota.yRot.rad)) * Speed;
+		velo.Y := 0; // (relamov.Z * sin(rota.yRot.rad)) * Speed;
 		velo.Z := (-relamov.Z * cos(rota.xzangle) - relamov.X *
 			sin(rota.xzangle)) * Speed;
 	end;
