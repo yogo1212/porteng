@@ -51,7 +51,7 @@ type
 
 procedure DoWait(millisecs: UInt32); register;
 begin
-	Sleep(millisecs);
+	SDL_Delay(millisecs);
 end;
 
 procedure DoNoWait({%H-}millisecs: UInt32); register;
