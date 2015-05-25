@@ -95,7 +95,6 @@
       <Unit13>
         <Filename Value="enginetimer.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="EngineTimer"/>
       </Unit13>
       <Unit14>
         <Filename Value="engineunit.pas"/>
@@ -178,7 +177,6 @@
       <Unit33>
         <Filename Value="enginememory.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="EngineMemory"/>
       </Unit33>
       <Unit34>
         <Filename Value="enginestringcomparer.pas"/>
