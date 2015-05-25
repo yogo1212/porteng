@@ -128,6 +128,7 @@ type
 
 procedure GameWorldInit;
 function CheckWorldCollision(var pos: TGamePosition; movement: TVec3): boolean;
+function TryNormalise(var pos: TGamePosition): boolean;
 
 {$IFDEF ENGINEDEBUG}
 function CastRayEmpty(const ocentry: TOcEntry; var pos: TVec3;
@@ -454,6 +455,25 @@ const
 	TryCorrectComponent: array[boolean] of TCorrectComponentProc =
 		(@DontTryCorrectComponent, @DoTryCorrectComponent);
 
+function TryNormalise(var pos: TGamePosition): boolean;
+begin
+	if Abs(pos.offset.X) > worldChunkSize / 2 then
+	begin
+		normaliseWorldPos(pos.worldPos.X, pos.offset.X);
+		Result := True;
+	end;
+	if Abs(pos.offset.Y) > worldChunkSize / 2 then
+	begin
+		normaliseWorldPos(pos.worldPos.Y, pos.offset.Y);
+		Result := True;
+	end;
+	if Abs(pos.offset.Z) > worldChunkSize / 2 then
+	begin
+		normaliseWorldPos(pos.worldPos.Z, pos.offset.Z);
+		Result := True;
+	end;
+end;
+
 function CheckWorldCollision(var pos: TGamePosition; movement: TVec3): boolean;
 var
 	tmpchunk: TWorldChunkPlain;
@@ -474,21 +494,7 @@ begin
 
 		MiauToRel(pos.offset, movement, worldChunkSize / 2);
 
-		if Abs(pos.offset.X) > worldChunkSize / 2 then
-		begin
-			normaliseWorldPos(pos.worldPos.X, pos.offset.X);
-			flag := True;
-		end;
-		if Abs(pos.offset.Y) > worldChunkSize / 2 then
-		begin
-			normaliseWorldPos(pos.worldPos.Y, pos.offset.Y);
-			flag := True;
-		end;
-		if Abs(pos.offset.Z) > worldChunkSize / 2 then
-		begin
-			normaliseWorldPos(pos.worldPos.Z, pos.offset.Z);
-			flag := True;
-		end;
+		flag := TryNormalise(pos);
 	until not flag;
 end;
 
