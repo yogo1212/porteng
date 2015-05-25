@@ -53,24 +53,30 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
 {$R *.res}
 
 begin
-	GameLogInit(portengproject.debugLevel, portengproject.Name);
+	try
+		GameLogInit(portengproject.debugLevel, portengproject.Name);
 
-	SDL_Init(0);
-	if not InitOpenGL then
-		raise Exception.Create('OpenGlInitError');
-	InitWindow;
+		SDL_Init(0);
+		if not InitOpenGL then
+			raise Exception.Create('OpenGlInitError');
+		InitWindow;
 
-	GameTextInit;
-	GameThreadInit;
+		GameTextInit;
+		GameThreadInit;
 
 {$ifdef ENGINEDEBUG}
-	SetGlDebugCallback;
+		SetGlDebugCallback;
 {$endif}
 
-	SetPortListener;
+		SetPortListener;
 
-	//EngineForm.mainWindow.toggle_fullscreen;
-	EngineForm.mainWindow.mainLoop;
-	GameClose;
-	SDL_Quit;
+		//EngineForm.mainWindow.toggle_fullscreen;
+		EngineForm.mainWindow.mainLoop;
+		GameClose;
+		SDL_Quit;
+	except
+		on E: Exception do
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PChar('Unhandled exception'),
+				PChar(E.Message), nil);
+	end;
 end.
