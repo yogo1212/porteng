@@ -40,6 +40,7 @@ type
 		procedure Insert(i: cardinal); virtual; abstract;
 		procedure Delete(index: cardinal); virtual; abstract;
     procedure Clear; virtual; abstract;
+    procedure Append(p: Pointer);
 		property Count: cardinal read used;
 		property Elementsize: cardinal read esize;
 		property Items[i: cardinal]: Pointer read Get write Put;
@@ -276,6 +277,12 @@ end;
 constructor TIndexedMemoryManager.Create(nelementsize: cardinal);
 begin
 	esize := nelementsize;
+end;
+
+procedure TIndexedMemoryManager.Append(p: Pointer);
+begin
+  Insert(Count);
+  Put(Count - 1, p);
 end;
 
 { TContinuousMemoryManager }

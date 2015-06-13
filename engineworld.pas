@@ -6,54 +6,17 @@ interface
 
 uses
 	Classes, SysUtils, dglOpenGL, EngineShader, Math, EngineTypes, EngineFileUtils,
-	Convenience, EngineMath, EngineMemory, EngineDebug;
+	Convenience, EngineMath, EngineMemory, EngineDebug, EngineOctree;
 
 //{$UNDEF ENGINEDEBUG}
 {$UNDEF USEDEPTHACCU}
 type
 
-	TVoxelInfo = record
-		position: TVec3;
-		colour: TCol4b;
-		size: GLfloat;
-	end;
-
-	PVoxelInfo = ^TVoxelInfo;
-
-	{ TOcEntry }
-
-	TOcType = (OcEmpty = 0, OcFull, OcRec, OcData);
-
-	TOcEntryPlain = record
-		case boolean of
-			False:		// 3-bit-index, 1st bit is x, 2nd y and 3rd z
-			// two bits are addressed
-			(map,
-				// childs are this far away [TOcEntryPlain]
-				offset: word);
-			// if this OcData
-			True: (id: cardinal);
-	end;
-
-	POcEntryPlain = ^TOcEntryPlain;
-
-	TOcEntry = object
-		o: POcEntryPlain;
-		function Get(index: byte): TOcType;
-		function Recurse(index: byte): TOcEntry;
-		function SubColour: TCol4b;
-		function TranslateColour(index: byte): TCol4b;
-		// this works with half-sizes. as does the shader.
-		procedure GetVoxelData(relrenderPos: TVec3; var destpnt: PVoxelInfo;
-			pos: TVec3; size: GLfloat; LoDper1: word; curCol: TCol4b);
-	end;
-
 	{ TWorldChunkPlain }
 
 	TWorldChunkPlain = object
 	private
-		octree: TOcEntry;
-		octreecount: cardinal;
+		octree: TOcPart;
 
 		usecnt: byte;
 
@@ -64,12 +27,10 @@ type
 		constructor Create(const nposition: TChunkPosition);
 		destructor Destroy;
 
-		function Use: TOcEntry;
+		function Use: TOcPart;
 		procedure UnUnse;
 
 		function AbsToRelPos(input: TGamePosition): TVec3;
-
-		function CountVoxels: cardinal;
 	end;
 
 	{ TWorldChunk }
@@ -79,7 +40,7 @@ type
 	{ TFillThread }
 
 	TFillThread = class(TThread)
-		Data: PVoxelInfo;
+		Data: TContinuousMemoryManager;
 		curvoxel, voxelcount: cardinal;
 		chunk: TWorldChunk;
 		finished: PBoolean;
@@ -130,14 +91,12 @@ procedure GameWorldInit;
 function CheckWorldCollision(var pos: TGamePosition; movement: TVec3): boolean;
 function TryNormalise(var pos: TGamePosition): boolean;
 
-{$IFDEF ENGINEDEBUG}
-function CastRayEmpty(const ocentry: TOcEntry; var pos: TVec3;
+function CastRayEmpty(const ocentry: TOcPart; var pos: TVec3;
 	var direction: TVec3): boolean;
-function CastRayFull(const ocentry: TOcEntry; var pos: TVec3;
+function CastRayFull(const ocentry: TOcPart; var pos: TVec3;
 	var direction: TVec3): boolean;
-function CastRayRec(const ocentry: TOcEntry; var pos: TVec3;
+function CastRayRec(const ocentry: TOcPart; var pos: TVec3;
 	var direction: TVec3): boolean;
-{$ENDIF}
 
 implementation
 
@@ -170,6 +129,7 @@ begin
 		FreeAndNil(chunkcomparer);
 	end;
 end;
+
 
 var
 	fobj: array[0..13] of TVec3;
@@ -233,17 +193,9 @@ begin
 	;
 end;
 
-{$IFNDEF ENGINEDEBUG}
-function CastRayEmpty(const ocentry: TOcEntry; var pos: TVec3;
-	var direction: TVec3): boolean; forward;
-function CastRayFull(const ocentry: TOcEntry; var pos: TVec3;
-	var direction: TVec3): boolean; forward;
-function CastRayRec(const ocentry: TOcEntry; var pos: TVec3;
-	var direction: TVec3): boolean; forward;
-{$ENDIF}
 
-type													 //OcEmpty = 0, OcFull, OcRec, OcData
-	TRayCastFunc = function(const ocentry: TOcEntry; var pos: TVec3;
+type
+	TRayCastFunc = function(const ocentry: TOcPart; var pos: TVec3;
 		var direction: TVec3): boolean;
 
 const
@@ -293,7 +245,7 @@ const
 	progressVectorComponent: array[boolean] of TProgressVectorProc =
 		(@DontProgressVectorComponent, @DoProgressVectorComponent);
 
-function CastRayEmpty(const ocentry: TOcEntry; var pos: TVec3;
+function CastRayEmpty(const ocentry: TOcPart; var pos: TVec3;
 	var direction: TVec3): boolean;
 var
 	m: GLfloat;
@@ -333,7 +285,7 @@ begin
 	// no further checks necessary
 end;
 
-function CastRayFull(const ocentry: TOcEntry; var pos: TVec3;
+function CastRayFull(const ocentry: TOcPart; var pos: TVec3;
 	var direction: TVec3): boolean;
 begin
 	// TODO is it wise to remove checks here?
@@ -364,7 +316,7 @@ type
 const
 	fixSignProblems: array[boolean] of TSignProc = (@DontCorrectSigns, @DoCorrectSigns);
 
-function CastRayRec(const ocentry: TOcEntry; var pos: TVec3;
+function CastRayRec(const ocentry: TOcPart; var pos: TVec3;
 	var direction: TVec3): boolean;
 
 	procedure prepareSigns(var pos: TVec3; const direction: TVec3);
@@ -398,7 +350,8 @@ begin
 	pos := (pos - Vec3((index and 1) - 0.5, ((index shr 1) and 1) - 0.5,
 		((index shr 2) and 1) - 0.5)) * 2;
 
-	Result := CastRayOctree[ocentry.Get(index)](ocentry.Recurse(index), pos, direction);
+	Result := CastRayOctree[ocentry.Recurse(TOcPos(index)).o^._type](
+		ocentry.Recurse(TOcPos(index)), pos, direction);
 
 	pos := (pos / 2) + Vec3((index and 1) - 0.5, ((index shr 1) and 1) -
 		0.5, ((index shr 2) and 1) - 0.5);
@@ -418,7 +371,8 @@ begin
 		pos := (pos - Vec3((index and 1) - 0.5, ((index shr 1) and 1) -
 			0.5, ((index shr 2) and 1) - 0.5)) * 2;
 
-		Result := CastRayOctree[ocentry.Get(index)](ocentry.Recurse(index), pos, direction);
+		Result := CastRayOctree[ocentry.Recurse(TOcPos(index)).o^._type](
+			ocentry.Recurse(TOcPos(index)), pos, direction);
 
 		pos := (pos / 2) + Vec3((index and 1) - 0.5, ((index shr 1) and 1) -
 			0.5, ((index shr 2) and 1) - 0.5);
@@ -505,7 +459,7 @@ begin
 		if activechunks.Fetch(@tmpchunk) then
 			Result := CastRayOctree[OcRec](tmpchunk.octree, pos.offset, movement)
 		else
-			// TODO remove this branch?
+			// TODO remove this branch? doesn't seem to work
 			Result := CastRayOctree[OcEmpty](tmpchunk.octree, pos.offset, movement);
 
 		MiauToRel(pos.offset, movement, worldChunkSize / 2);
@@ -514,27 +468,13 @@ begin
 	until not flag or Result;
 end;
 
-function finaliseColour(const input: TCol4b): TCol4b;
-begin
-	// elements of input-colour are 0;64;128 or 192
-	PCol3b(@Result)^ := (PCol3b(@input)^ div $30) * 85;
-	// r g and b are now 0;85;170;255
-{$IFDEF USEDEPTHACCU}
-	Result.w := 63 + input.w;
-	// a is now 63;127;191;255
-{$ELSE}
-	// Sadly, before order-independent-transparency-rendering is feasible:
-	Result.A := 255;
-{$ENDIF}
-end;
-
 {$ifdef ENGINEDEBUG}
 procedure printVoxelArray(pnt: PVoxelInfo; cnt: cardinal);
 begin
 	while cnt > 0 do
 	begin
 		Dec(cnt);
-		logTrace(VecToStr(pnt^.position) + ': ' + FloatToStr(pnt^.size) +
+		logTrace(VecToStr(pnt^.position) + ': ' + FloatToStr(pnt^.hsize) +
 			' ' + BinToHexStr(@pnt^.colour, SizeOf(TVoxelInfo.colour)));
 		Inc(pnt);
 	end;
@@ -627,94 +567,6 @@ begin
 	end;
 end;
 
-{ TOcEntry }
-
-function TOcEntry.Get(index: byte): TOcType;
-begin
-	Result := TOcType((o^.map shr ((index and $7) shl 1)) and $3);
-end;
-
-function TOcEntry.Recurse(index: byte): TOcEntry;
-var
-	buffer: word;
-begin
-	Result.o := (o + 1 + o^.offset);
-	buffer := o^.map;
-	while index > 0 do
-	begin
-		Dec(index);
-		if (buffer and $2) <> 0 then
-			Inc(Result.o);
-		buffer := buffer shr 2;
-	end;
-end;
-
-function TOcEntry.TranslateColour(index: byte): TCol4b;
-begin
-	Result := Col4b(Ord(Get((2 + index) and $7)) + Ord(Get((0 + index) and $7)),
-		Ord(Get((1 + index) and $7)) + Ord(Get((5 + index) and $7)),
-		Ord(Get((6 + index) and $7)) + Ord(Get((4 + index) and $7)),
-		Ord(Get((3 + index) and $7)) + Ord(Get((7 + index) and $7))) * $30;
-end;
-
-function TOcEntry.SubColour: TCol4b;
-var
-	cnt: byte;
-begin
-	Result := Col4b(0, 0, 0, 0);
-	for cnt := 0 to 7 do
-	begin
-		if Get(cnt) = OcRec then
-			Result := Result + Recurse(cnt).SubColour
-		else if Get(cnt) = OcFull then
-			Result := Result + TranslateColour(cnt);
-	end;
-end;
-
-procedure TOcEntry.GetVoxelData(relrenderPos: TVec3; var destpnt: PVoxelInfo;
-	pos: TVec3; size: GLfloat; LoDper1: word; curCol: TCol4b);
-
-	function GetSubOffsVec(index: byte): TVec3;
-	begin
-		Result.X := (index and $1);
-		Result.Y := ((index shr $1) and $1);
-		Result.Z := (index shr $2);
-	end;
-
-var
-	cnt: byte;
-	subpos: TVec3;
-	subsize: GLfloat;
-	subcol: TCol4b;
-begin
-	subsize := size / 2;
-	if LengthSquare(relrenderPos - pos) - sqr(size) < sqr(LoDper1 * size) then
-	begin
-		for cnt := 0 to 7 do
-		begin
-			subpos := pos - Vec3(subsize, subsize, subsize) + GetSubOffsVec(cnt) * size;
-			subcol := curCol + TranslateColour(cnt);
-			if Get(cnt) = OcRec then
-				Recurse(cnt).GetVoxelData(relrenderPos, destpnt, subpos, subsize, LoDper1,
-					SubCol)
-			else if Get(cnt) = OcFull then
-			begin
-				destpnt^.colour := finaliseColour(subcol);
-				destpnt^.position := subpos;
-				destpnt^.size := subsize;
-				Inc(destpnt);
-			end;
-		end;
-	end
-	else
-	begin
-		destpnt^.colour := finaliseColour(curcol + SubColour);
-		destpnt^.position := pos;
-		destpnt^.size := size;
-		Inc(destpnt);
-	end;
-end;
-
 { TFillThread }
 
 constructor TFillThread.Create(nchunk: TWorldChunk; finishedflag: PBoolean;
@@ -724,36 +576,26 @@ begin
 	chunk := nchunk;
 	curvoxel := 0;
 	LoDper1 := nLoDper1;
-	voxelcount := nchunk^.CountVoxels;
 	finished := finishedflag;
 	AbsViewPos := nAbsViewPos;
-	Getmem(Data, voxelcount * SizeOf(TVoxelInfo));
+	Data := TContinuousMemoryManager.Create(Sizeof(TVoxelInfo), 100);
 end;
 
 destructor TFillThread.Destroy;
 begin
-	Getmem(Data, voxelcount * SizeOf(TVoxelInfo));
+	Freemem(Data, voxelcount * SizeOf(TVoxelInfo));
 	inherited Destroy;
 end;
 
 procedure TFillThread.Execute;
-var
-	tmppnt: PVoxelInfo;
 begin
-	tmppnt := Data;
-	chunk^.octree.GetVoxelData(chunk^.AbsToRelPos(AbsViewPos) / 2, tmppnt, Vec3(0, 0, 0),
-		worldChunkSize / 2, LoDper1, Col4b(0, 0, 0, 0));
+	chunk^.octree.GetVoxelData(chunk^.AbsToRelPos(AbsViewPos) / 2, Data, LoDper1);
 
-	curvoxel := (tmppnt - Data);
 {$ifdef ENGINEDEBUG}
-	printVoxelArray(Data, curvoxel);
+	printVoxelArray(Data.Get(0), curvoxel);
 	logTrace('Built new chunk with ' + IntToStr(curvoxel) + ' voxels');
 	logTrace('Chunk Data ' + BinToHexStr(Data, curvoxel * SizeOf(TVoxelInfo)));
 {$endif}
-	if curvoxel > voxelcount then
-		raise Exception.Create('weird stuff goin on here' + PtrToHex(Data) +
-			' ' + IntToStr(voxelcount) + ' ' + PtrToHex(tmppnt) + ' ' +
-			IntToStr(SizeOf(TVoxelInfo)));
 	if not terminated then
 		finished^ := True;
 	Terminate;
@@ -859,7 +701,7 @@ begin
 	glEnableVertexAttribArray(3);
 	glVertexAttribDivisor(3, 1);
 	glVertexAttribPointer(3, 1, GL_FLOAT, bytebool(GL_FALSE), SizeOf(TVoxelInfo),
-		@PVoxelInfo(nil)^.size);
+		@PVoxelInfo(nil)^.hsize);
 end;
 
 procedure DontReload({%H-}chunk: PLoadedChunk);
@@ -881,24 +723,13 @@ end;
 
 constructor TWorldChunkPlain.Create(const nposition: TChunkPosition);
 var
-	filestream: TFileStream;
 	filename: string;
 begin
 	position := nposition;
 
 	filename := mapDataPath + BuildFileName;
 	if FileExists(filename) then
-	begin
-		filestream := TFileStream.Create(filename, fmOpenRead);
-
-		filestream.ReadBuffer(octreecount, SizeOf(octreecount));
-		GetMem(octree.o, octreecount * SizeOf(TOcEntryPlain));
-		filestream.ReadBuffer(octree.o^, octreecount * SizeOf(TOcEntryPlain));
-
-		FreeAndNil(filestream);
-	end
-	else
-		octree.o := nil;
+		octree.LoadFromFile(filename, worldChunkSize);
 
 	usecnt := 0;
 end;
@@ -910,11 +741,11 @@ end;
 
 destructor TWorldChunkPlain.Destroy;
 begin
-	FreeMem(octree.o, octreecount * SizeOf(TOcEntryPlain));
+	octree.CleanUp;
 	activechunks.Delete(@Self);
 end;
 
-function TWorldChunkPlain.Use: TOcEntry;
+function TWorldChunkPlain.Use: TOcPart;
 begin
 	Result := octree;
 	Inc(usecnt);
@@ -935,55 +766,6 @@ begin
 	//Result.X := round((input.X - position.X) * 128);
 	//Result.Y := round((input.Y - position.Y) * 128);
 	//Result.Z := round((input.Z - position.Z) * 128);
-end;
-
-
-procedure DoAccu(input: word; var accu: cardinal);
-begin
-	accu += input and $1;
-end;
-
-procedure DontAccu({%H-}input: word; var {%H-}accu: cardinal);
-begin
-
-end;
-
-type
-	TAccumulateProc = procedure(input: word; var accu: cardinal);
-
-var
-	acculookup: array[boolean] of TAccumulateProc = (@DontAccu, @DoAccu);
-
-procedure Accumulate01BitPairs(input: word; var accu: cardinal);
-begin
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-end;
-
-function TWorldChunkPlain.CountVoxels: cardinal;
-var
-	it: cardinal;
-begin
-	it := 0;
-	Result := 0;
-	while it < octreecount do
-	begin
-		Accumulate01BitPairs((octree.o + it)^.map, Result);
-		Inc(it);
-	end;
 end;
 
 

@@ -57,6 +57,7 @@ type
 
 	{ TSimpleBase }
 
+	// these are really stupid. replace them with them a proper structure.
   TSimpleBase = class
   public
 	  value: Pointer;

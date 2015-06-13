@@ -12,7 +12,7 @@ type
 {$IF sizeof(glfloat) = sizeof(gluint)}
   Tglfloatsizedint = gluint;
 {$ELSE}
-  ERROR!
+{$ERROR glfloatsize not uint!}
 {$ENDIF}
 
   Pglfloatsizeduint = ^Tglfloatsizedint;
@@ -175,6 +175,14 @@ type
 	end;
 
 	PGamePosition = ^TGamePosition;
+
+	TVoxelInfo = record
+		position: TVec3;
+		colour: TCol4b;
+		hsize: GLfloat;
+	end;
+
+	PVoxelInfo = ^TVoxelInfo;
 
 	{ TRotation }
 
