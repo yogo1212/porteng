@@ -47,12 +47,12 @@ end;
 
 procedure logError(input: string);
 begin
-	//log(gdError, input);
+	log(gdError, input);
 end;
 
 procedure logTrace(message: string);
 begin
-	//log(gdTrace, message);
+	log(gdTrace, message);
 end;
 
 {$IFDEF ENGINEDEBUG}
@@ -225,4 +225,4 @@ begin
 	end;
 end;
 
-end.
+end.

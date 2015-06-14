@@ -18,11 +18,11 @@ type
 function BuildPerspProjMat(fov, aspect, znear, zfar: GLfloat): TGlMatrix;
 
 procedure Limit(var input: TVec3; const length: GLfloat);
-function LengthSquare(const input: TVec3): GLfloat;
-function LengthSquare(const input: TVec3i): GLfloat; overload;
+function LengthSquare(const input: TVec3): GLfloat; inline;
+function LengthSquare(const input: TVec3i): GLfloat; overload; inline;
 function Normalize(input: TVec3): TVec3;
 
-// this brakes for number = 0!!
+// this breakes for number = 0!!
 function Q_rsqrt(number: GLfloat): GLfloat;
 
 implementation
@@ -85,11 +85,11 @@ begin
 end;
 {$ENDIF}
 
-// TODO implement those in asm:
+// TODO implement those in asm? want vector
 
 function LengthSquare(const input: TVec3): GLfloat;
 begin
-	Result := input.X * input.X + input.Y * input.Y + input.Z * input.Z;
+  Result := input.X * input.X + input.Y * input.Y + input.Z * input.Z;
 end;
 
 function LengthSquare(const input: TVec3i): GLfloat;

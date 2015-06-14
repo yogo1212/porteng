@@ -126,7 +126,6 @@ begin
 			vi.position := tmp^.position;
 			Data.Append(@vi);
 		end;
-		Dispose(tmp);
 	until not queue.Dequeue;
 	FreeAndNil(queue);
 end;
@@ -186,7 +185,7 @@ var
 			for cnt := 0 to 7 do
 			begin
 				new(tmp);
-				tmp^._type := TOcType(ot.map and $2);
+				tmp^._type := TOcType(ot.map and $3);
 				tmp^.hsize := parent^.hsize / 2;
 				tmp^.position := parent^.position + OcPosToRelOffset(TOcPos(cnt)) *
 					parent^.hsize;

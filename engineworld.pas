@@ -8,7 +8,7 @@ uses
 	Classes, SysUtils, dglOpenGL, EngineShader, Math, EngineTypes, EngineFileUtils,
 	Convenience, EngineMath, EngineMemory, EngineDebug, EngineOctree;
 
-//{$UNDEF ENGINEDEBUG}
+{$DEFINE ENGINEDEBUG}
 {$UNDEF USEDEPTHACCU}
 type
 
@@ -41,7 +41,6 @@ type
 
 	TFillThread = class(TThread)
 		Data: TContinuousMemoryManager;
-		curvoxel, voxelcount: cardinal;
 		chunk: TWorldChunk;
 		finished: PBoolean;
 		AbsViewPos: TGamePosition;
@@ -574,7 +573,6 @@ constructor TFillThread.Create(nchunk: TWorldChunk; finishedflag: PBoolean;
 begin
 	inherited Create(True);
 	chunk := nchunk;
-	curvoxel := 0;
 	LoDper1 := nLoDper1;
 	finished := finishedflag;
 	AbsViewPos := nAbsViewPos;
@@ -583,7 +581,7 @@ end;
 
 destructor TFillThread.Destroy;
 begin
-	Freemem(Data, voxelcount * SizeOf(TVoxelInfo));
+	FreeAndNil(Data);
 	inherited Destroy;
 end;
 
@@ -592,9 +590,9 @@ begin
 	chunk^.octree.GetVoxelData(chunk^.AbsToRelPos(AbsViewPos) / 2, Data, LoDper1);
 
 {$ifdef ENGINEDEBUG}
-	printVoxelArray(Data.Get(0), curvoxel);
-	logTrace('Built new chunk with ' + IntToStr(curvoxel) + ' voxels');
-	logTrace('Chunk Data ' + BinToHexStr(Data, curvoxel * SizeOf(TVoxelInfo)));
+	printVoxelArray(Data.Get(0), Data.Count);
+	logTrace('Built new chunk with ' + IntToStr(Data.Count) + ' voxels');
+	logTrace('Chunk Data ' + BinToHexStr(Data, Data.Count * SizeOf(TVoxelInfo)));
 {$endif}
 	if not terminated then
 		finished^ := True;
@@ -604,8 +602,8 @@ end;
 procedure TFillThread.CollectResult(vertexbuffer: GLuint; pvoxelcount: PCardinal);
 begin
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, curvoxel * SizeOf(TVoxelInfo), Data, GL_STATIC_DRAW);
-	pvoxelcount^ := curvoxel;
+	glBufferData(GL_ARRAY_BUFFER, Data.Count * SizeOf(TVoxelInfo), Data, GL_STATIC_DRAW);
+	pvoxelcount^ := Data.Count;
 end;
 
 { TLoadedChunk }

@@ -85,6 +85,7 @@
       <Unit11>
         <Filename Value="enginedebug.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineDebug"/>
       </Unit11>
       <Unit12>
         <Filename Value="portengproj.pas"/>
