@@ -1,4 +1,5 @@
 backup/
+dist/cache/
 lib/
 out/
 DING.lps
