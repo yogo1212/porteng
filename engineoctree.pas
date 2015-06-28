@@ -112,9 +112,7 @@ begin
 			if tmp^._type = ocRec then
 			begin
 				for cnt := 0 to 7 do
-				begin
 					queue.Enqueue(tmp^.children[TOcPos(cnt)]);
-				end;
 			end;
 
 		end
@@ -149,10 +147,9 @@ end;
 
 function FunnyColourFromIndex(index: TOcPos): TCol4b; inline;
 begin
-	Result := Col4b(-64 * BitAtPos(index, 2) + 64 * BitAtPos(index, 0),
-		-64 * BitAtPos(index, 1) + 64 * BitAtPos(index, 5), -64 *
-		BitAtPos(index, 6) + 64 * BitAtPos(index, 4), -64 * BitAtPos(index, 3) +
-		64 * BitAtPos(index, 7)) * $30;
+	Result := Col4b(BitAtPos(index, 2) + 2 * BitAtPos(index, 0),
+		BitAtPos(index, 1) + 2 * BitAtPos(index, 5), BitAtPos(index, 6) + 2 *
+		BitAtPos(index, 4), BitAtPos(index, 3) + 2 * BitAtPos(index, 7)) * 85;
 end;
 
 procedure TOcPart.LoadFromFile(const filepath: string; const size: GLfloat);
@@ -274,7 +271,7 @@ begin
 	if ((Ord(pos) shr 1) and 1) <> 0 then
 		Result.Y += 1;
 	if ((Ord(pos) shr 2) and 1) <> 0 then
-		Result.Y += 1;
+		Result.Z += 1;
 end;
 
 procedure DoAccu(input: word; var accu: cardinal);

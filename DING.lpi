@@ -116,7 +116,6 @@
       <Unit18>
         <Filename Value="enginemath.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="EngineMath"/>
       </Unit18>
       <Unit19>
         <Filename Value="enginetext.pas"/>
