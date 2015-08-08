@@ -54,16 +54,22 @@ const
 	gravitationalMaxSpeed: GLfloat = 80;
 
 procedure moveFalling(unit_: PEngineUnit; seconds: GLfloat);
+var
+	downwards: TVec3;
+	// TODO perhaps this should also be a field of 'unit_'
 begin
-	unit_^.fallVelo.Y := unit_^.fallVelo.Y - seconds * gravitationalAcc;
-	Limit(unit_^.fallVelo, gravitationalMaxSpeed);
+	downwards := Vec3(0, unit_^.fallVelo.Y - seconds * gravitationalAcc, 0);
+	Limit(downwards, gravitationalMaxSpeed);
+	unit_^.fallVelo.Y := 0;
 	unit_^.tpos := unit_^.pos;
+	CheckWorldCollision(unit_^.tpos, unit_^.fallVelo * seconds);
 	// TODO lookup
-	if CheckWorldCollision(unit_^.tpos, unit_^.fallVelo * seconds) then
+	if CheckWorldCollision(unit_^.tpos, downwards * seconds) then
 	begin
 		unit_^.state := psGrounded;
 		unit_^.fallVelo.Y := 0;
 	end;
+	unit_^.fallVelo.Y := downwards.Y;
 	unit_^.pos := unit_^.tpos;
 end;
 
