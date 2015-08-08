@@ -72,7 +72,7 @@ implementation
 function finaliseColour(const input: TCol4b): TCol4b; inline;
 begin
 	// elements of input-colour are 0;64;128 or 192
-	PCol3b(@Result)^ := (PCol3b(@input)^ div $30) * 85;
+	PCol3b(@Result)^ := (PCol3b(@input)^) * 85;
 	// r g and b are now 0;85;170;255
 {$IFDEF USEDEPTHACCU}
 	Result.w := 63 + input.w;
@@ -148,8 +148,8 @@ end;
 function FunnyColourFromIndex(index: TOcPos): TCol4b; inline;
 begin
 	Result := Col4b(BitAtPos(index, 2) + 2 * BitAtPos(index, 0),
-		BitAtPos(index, 1) + 2 * BitAtPos(index, 5), BitAtPos(index, 6) + 2 *
-		BitAtPos(index, 4), BitAtPos(index, 3) + 2 * BitAtPos(index, 7)) * 85;
+		BitAtPos(index, 1) + 2 * BitAtPos(index, 5), BitAtPos(index, 6) +
+		2 * BitAtPos(index, 4), BitAtPos(index, 3) + 2 * BitAtPos(index, 7));
 end;
 
 procedure TOcPart.LoadFromFile(const filepath: string; const size: GLfloat);
