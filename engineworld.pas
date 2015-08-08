@@ -212,12 +212,13 @@ var
 {
   what is this function for?
   it deals with the problem that we want know how far ray cast in the unit-cube can travel
-  before it hits a wall.
+  before it hits a wall (boundary of the cube).
   pos is in [-1;1]
   instead of branching and doing two divisions..
   pos is translated to a space in [-2;0] or [0;2] (depending on the sign of dir) and
   stored in offset.floatval
   this translated value now get's the same sign as dir
+  and can then be divided by dir to yield a positive result
 }
 begin
 	//This gives a unit float with same sign of dir
