@@ -25,7 +25,7 @@ type
 			position: TGamePosition; rotation: TGameRotation; nspeed: GLfloat);
 		procedure UpdateVelocity;
 	public
-    deltapos: TVec3;
+		deltapos: TVec3;
 		speed: GLfloat;
 		state: TGameUnitPhysState;
 
@@ -34,7 +34,7 @@ type
 		function PlanMove(time: GLfloat): TVec3;
 		procedure passTime(seconds: GLfloat);
 		procedure SetVelocity(relativeMovement: TVec3);
-    procedure SetRota(nrota: TGameRotation);
+		procedure SetRota(nrota: TGameRotation);
 		destructor Destroy;
 		property UnitId: longword read id;
 	end;
@@ -69,12 +69,12 @@ end;
 
 procedure moveGrounded(unit_: PEngineUnit; seconds: GLfloat);
 begin
-  // TODO this needs to be normalised
-	unit_^.tpos.offset.y := unit_^.pos.offset.y + unit_^.Speed / 2;
+	// TODO this needs to be normalised
+	unit_^.tpos.offset.y := unit_^.pos.offset.y + unit_^.Speed / 4;
 	// TODO loooooookup
 	CheckWorldCollision(unit_^.tpos, unit_^.velo * seconds);
-	if not CheckWorldCollision(unit_^.tpos,
-		Vec3(0, -unit_^.Speed - 0.5 * seconds * seconds * gravitationalAcc, 0)) then
+	if not CheckWorldCollision(unit_^.tpos, Vec3(0, -unit_^.Speed -
+		0.5 * seconds * seconds * gravitationalAcc, 0)) then
 	begin
 		unit_^.state := psFalling;
 		unit_^.fallVelo := unit_^.velo;
@@ -92,7 +92,7 @@ end;
 procedure moveNoclip(unit_: PEngineUnit; seconds: GLfloat);
 begin
 	unit_^.tpos.offset += unit_^.velo * seconds;
-  TryNormalise(unit_^.tpos);
+	TryNormalise(unit_^.tpos);
 end;
 
 type
@@ -242,9 +242,9 @@ end;
 
 procedure TEngineUnit.SetRota(nrota: TGameRotation);
 begin
-  rota := nrota;
-  if state <> psFlying then
-    rota.yangle := 0;
+	rota := nrota;
+	if state <> psFlying then
+		rota.yangle := 0;
 end;
 
 function TEngineUnit.PlanMove(time: GLfloat): TVec3;
@@ -275,11 +275,9 @@ begin
 	end
 	else // if state = psGrounded then
 	begin
-		velo.X := (relamov.Z * sin(rota.xzangle) - relamov.X *
-			cos(rota.xzangle)) * Speed;
+		velo.X := (relamov.Z * sin(rota.xzangle) - relamov.X * cos(rota.xzangle)) * Speed;
 		velo.Y := 0; // (relamov.Z * sin(rota.yRot.rad)) * Speed;
-		velo.Z := (-relamov.Z * cos(rota.xzangle) - relamov.X *
-			sin(rota.xzangle)) * Speed;
+		velo.Z := (-relamov.Z * cos(rota.xzangle) - relamov.X * sin(rota.xzangle)) * Speed;
 	end;
 end;
 
@@ -296,11 +294,12 @@ end;
 
 procedure TEngineUnit.rotateYclamped(amountxz, amounty: GLfloat);
 begin
-  RotateXZ(amountxz);
-  // TODO
-  if state = psFlying then
-    RotateY(amounty);
-  updateTable[(amountxz <> 0) or (amounty <> 0)](@UpdateVelocity);
+	RotateXZ(amountxz);
+	// TODO
+	if state = psFlying then
+		RotateY(amounty);
+	updateTable[(amountxz <> 0) or (amounty <> 0)](@UpdateVelocity);
+
 end;
 
 procedure TEngineUnit.Jump;
