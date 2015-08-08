@@ -189,9 +189,7 @@ var
 
 				tmp^.colour := parent^.colour + FunnyColourFromIndex(TOcPos(cnt));
 				if tmp^._type = OcRec then
-				begin
 					queue.Enqueue(tmp);
-				end;
 
 				ot.map := ot.map shr 2;
 				parent^.children[TOcPos(cnt)] := tmp;

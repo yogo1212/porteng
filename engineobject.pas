@@ -21,7 +21,8 @@ type
 
 	{ TGameModel }
 
-	TGameModel = class abstract
+	TGameModel = class
+		abstract
 		programtype: TShaderProgramType;
 		vertexarray, vertexbuffer, indexlist, textureHandle: GLuint;
 		drawType: GLenum;
@@ -78,7 +79,7 @@ end;
 procedure IndexedModelDraw(repr: PGameModelRepr);
 begin
 	glBindVertexArray(repr^.vertexarray);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, repr^.indexlist);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, repr^.indexlist);
 	glDrawElements(repr^.drawType, repr^.indexcount, GL_UNSIGNED_INT, nil);
 end;
 
