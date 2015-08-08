@@ -129,13 +129,11 @@ begin
 	end;
 end;
 
-
-var
-	fobj: array[0..13] of TVec3;
-
 procedure GameWorldInit;
 const
 	size: GLfloat = 1;
+var
+	fobj: array[0..13] of TVec3;
 begin
 	if not initialised then
 	begin
