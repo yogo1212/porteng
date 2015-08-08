@@ -221,21 +221,15 @@ var
 	octreecount: cardinal;
 begin
 	filestream := TFileStream.Create(filepath, fmOpenReadWrite);
+  filestream.Seek(0, soFromBeginning);
+
+
 
 	// start a thread, let that write the octrees to a pipe
 	// read from pipe here and write to file, if that has changed
 
 	// alternative: write diff
-	{
-  filestream.ReadBuffer(octreecount, SizeOf(octreecount));
-
-  GetMem(storeTree.o, octreecount * SizeOf(TOcStoreEntryPlain));
-  filestream.ReadBuffer(storeTree.o, octreecount * SizeOf(TOcStoreEntryPlain));
-
-  max_voxel_count := countVoxels(storeTree.o, octreecount);
-
   FreeAndNil(filestream);
-  }
 end;
 
 procedure TOcPart.CleanUp;
