@@ -76,11 +76,11 @@ end;
 procedure moveGrounded(unit_: PEngineUnit; seconds: GLfloat);
 begin
 	// TODO this needs to be normalised
-	unit_^.tpos.offset.y := unit_^.pos.offset.y + unit_^.Speed / 4;
+	unit_^.tpos.offset.y := unit_^.pos.offset.y + unit_^.Speed * seconds / 4;
 	// TODO loooooookup
 	CheckWorldCollision(unit_^.tpos, unit_^.velo * seconds);
-	if not CheckWorldCollision(unit_^.tpos, Vec3(0, -unit_^.Speed -
-		0.5 * seconds * seconds * gravitationalAcc, 0)) then
+	if not CheckWorldCollision(unit_^.tpos, Vec3(0, -unit_^.Speed *
+		seconds / 2 - 0.5 * seconds * seconds * gravitationalAcc, 0)) then
 	begin
 		unit_^.state := psFalling;
 		unit_^.fallVelo := unit_^.velo;
