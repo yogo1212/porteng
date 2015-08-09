@@ -98,6 +98,7 @@
       <Unit14>
         <Filename Value="engineunit.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineUnit"/>
       </Unit14>
       <Unit15>
         <Filename Value="engineresource.pas"/>
@@ -197,6 +198,7 @@
       <Unit37>
         <Filename Value="gameunit.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="GameUnit"/>
       </Unit37>
       <Unit38>
         <Filename Value="gamespell.pas"/>
