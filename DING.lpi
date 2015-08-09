@@ -58,6 +58,7 @@
       <Unit5>
         <Filename Value="engineinput.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineInput"/>
       </Unit5>
       <Unit6>
         <Filename Value="engineobject.pas"/>
@@ -164,6 +165,7 @@
       <Unit29>
         <Filename Value="enginemodelloader.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineModelLoader"/>
       </Unit29>
       <Unit30>
         <Filename Value="engineshaderbuilder.pas"/>
