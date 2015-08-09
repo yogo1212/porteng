@@ -258,11 +258,12 @@ begin
   cube with a length of 2 located at origin.
   that way t and n are identical and unit.
 
-  // substituting r for x yields: -n*(n - t) / n*d = m
+  substituting r for x yields: -n*(n - t) / n*d = m
 
-  but: n will only be a vector with two components being 0 and one being either 1 or -1
+  but: n (the plane in which one side of the unit cube lies) will only be a vector with
+  two components being 0 and one being either 1 or -1
   => n*n is always one.
-  so for each plan this is the equation: (1 - t_c) / (n_c * d_c) = m
+  so for each plane this is the equation: (1 - t_c) / (n_c * d_c) = m
   Otherwise, the dot-product is equivalent to a projection and a potential sign-toggle.
   }
 
