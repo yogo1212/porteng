@@ -391,39 +391,6 @@ begin
 	dir := dir * size;
 end;
 
-type
-	TCorrectComponentProc = procedure(var worldPos: GLint; var pos: GLfloat;
-		const dir: GLfloat; var flag: boolean); register;
-
-procedure DontTryCorrectComponent(var {%H-}worldPos: GLint;
-	var {%H-}pos: GLfloat; const {%H-}dir: GLfloat; var {%H-}flag: boolean);
-begin
-
-end;
-
-procedure DoTryCorrectComponent(var worldPos: GLint; var pos: GLfloat;
-	const dir: GLfloat; var flag: boolean);
-begin
-	if (pos > worldChunkSize / 2) or ((pos = worldChunkSize / 2) and
-		((Pglfloatsizeduint(@dir)^ and glfloatsignbit) = 0)) then
-	begin
-		pos -= worldChunkSize;
-		worldPos += 1;
-		flag := True;
-	end
-	else if (pos < -worldChunkSize / 2) or ((pos = -worldChunkSize / 2) and
-		((Pglfloatsizeduint(@dir)^ and glfloatsignbit) <> 0)) then
-	begin
-		pos += worldChunkSize;
-		worldPos -= 1;
-		flag := True;
-	end;
-end;
-
-const
-	TryCorrectComponent: array[boolean] of TCorrectComponentProc =
-		(@DontTryCorrectComponent, @DoTryCorrectComponent);
-
 function TryNormalise(var pos: TGamePosition): boolean;
 begin
 	Result := False;
