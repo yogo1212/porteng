@@ -47,7 +47,7 @@ var
 	vIbuffer: array of word;
 	vtIbuffer: array of word;
 	vnIbuffer: array of word;
-	outcnt, indexcnt, veccnt, normcnt, txccnt, zhlr, outsize: word;
+	indexcnt, veccnt, normcnt, txccnt, zhlr, outsize: word;
 
 	outbuffer: array of byte;
 
@@ -96,7 +96,6 @@ begin
 	normcnt := 0;
 	txccnt := 0;
 	indexcnt := 0;
-	outcnt := 0;
 
 	SetLength(vectorbuffer, MAXLEN);
 	SetLength(normalbuffer, MAXLEN);
