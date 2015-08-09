@@ -601,7 +601,8 @@ end;
 procedure TFillThread.CollectResult(vertexbuffer: GLuint; pvoxelcount: PCardinal);
 begin
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, Data.Count * SizeOf(TVoxelInfo), Data.Get(0), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, Data.Count * SizeOf(TVoxelInfo),
+		Data.Get(0), GL_STATIC_DRAW);
 	pvoxelcount^ := Data.Count;
 end;
 
