@@ -97,8 +97,9 @@ end;
 
 procedure moveNoclip(unit_: PEngineUnit; seconds: GLfloat);
 begin
-	unit_^.tpos.offset += unit_^.velo * seconds;
-	TryNormalise(unit_^.tpos);
+	unit_^.pos.offset += unit_^.velo * seconds;
+	// normally, this would happen in CheckWorldCollision
+	TryNormalise(unit_^.pos);
 end;
 
 type
