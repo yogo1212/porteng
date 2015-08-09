@@ -726,9 +726,9 @@ end;
 
 function TWorldChunkPlain.AbsToRelPos(input: TGamePosition): TVec3;
 begin
-	Result.X := ((input.worldPos.X - position.X) * 512 + input.offset.X);
-	Result.Y := ((input.worldPos.Y - position.Y) * 512 + input.offset.Y);
-	Result.Z := ((input.worldPos.Z - position.Z) * 512 + input.offset.Z);
+	Result.X := ((input.worldPos.X - position.X) * worldChunkSize + input.offset.X);
+	Result.Y := ((input.worldPos.Y - position.Y) * worldChunkSize + input.offset.Y);
+	Result.Z := ((input.worldPos.Z - position.Z) * worldChunkSize + input.offset.Z);
 	//Result.X := round((input.X - position.X) * 128);
 	//Result.Y := round((input.Y - position.Y) * 128);
 	//Result.Z := round((input.Z - position.Z) * 128);
