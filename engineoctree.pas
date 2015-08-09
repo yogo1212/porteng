@@ -266,39 +266,4 @@ begin
 		Result.Z += 1;
 end;
 
-procedure DoAccu(input: word; var accu: cardinal);
-begin
-	accu += input and $1;
-end;
-
-procedure DontAccu({%H-}input: word; var {%H-}accu: cardinal);
-begin
-
-end;
-
-type
-	TAccumulateProc = procedure(input: word; var accu: cardinal);
-
-var
-	acculookup: array[boolean] of TAccumulateProc = (@DontAccu, @DoAccu);
-
-procedure Accumulate01BitPairs(input: word; var accu: cardinal);
-begin
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-	input := input shr 2;
-	acculookup[(input and $2) = 0](input, accu);
-end;
-
 end.
