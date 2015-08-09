@@ -349,7 +349,6 @@ procedure TContinuousMemoryManager.Insert(i: cardinal);
 var
 	tmpbytes: PByte;
 	len: cardinal;
-	buffer: array of byte;
 begin
 	len := (used - i) * esize;
 	if used = capacity then
