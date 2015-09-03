@@ -39,6 +39,7 @@
       <Unit1>
         <Filename Value="convenience.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="Convenience"/>
       </Unit1>
       <Unit2>
         <Filename Value="enginecamera.pas"/>
@@ -151,6 +152,7 @@
       <Unit26>
         <Filename Value="gamegui.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="GameGUI"/>
       </Unit26>
       <Unit27>
         <Filename Value="enginetextureloader.pas"/>
