@@ -146,10 +146,11 @@ begin
 end;
 
 function FunnyColourFromIndex(index: TOcPos): TCol4b; inline;
+const
+	offset = 9;
 begin
-	Result := Col4b(BitAtPos(index, 2) + 2 * BitAtPos(index, 0),
-		BitAtPos(index, 1) + 2 * BitAtPos(index, 5), BitAtPos(index, 6) +
-		2 * BitAtPos(index, 4), BitAtPos(index, 3) + 2 * BitAtPos(index, 7));
+	Result := Col4b((3 * Ord(index) + offset) mod 15, (2 * Ord(index) + offset) mod
+		15, (Ord(index) + offset) mod 15, (4 * Ord(index) + offset) mod 15) * 17;
 end;
 
 procedure TOcPart.LoadFromFile(const filepath: string; const size: GLfloat);
