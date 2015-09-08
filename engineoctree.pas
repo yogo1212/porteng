@@ -222,7 +222,7 @@ var
 	octreecount: cardinal;
 begin
 	filestream := TFileStream.Create(filepath, fmOpenReadWrite);
-  filestream.Seek(0, soFromBeginning);
+	filestream.Seek(0, soFromBeginning);
 
 
 
@@ -230,7 +230,7 @@ begin
 	// read from pipe here and write to file, if that has changed
 
 	// alternative: write diff
-  FreeAndNil(filestream);
+	FreeAndNil(filestream);
 end;
 
 procedure TOcPart.CleanUp;
