@@ -177,6 +177,8 @@ var
 		queue := TSimpleQueue.Create(o);
 		repeat
 			filestream.Read(ot, sizeof(ot));
+			ot.map := LEtoN(ot.map);
+			ot.offset := LEtoN(ot.offset);
 
 			parent := queue.Value;
 
