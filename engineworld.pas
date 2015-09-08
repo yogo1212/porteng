@@ -219,10 +219,11 @@ var
   stored in offset.floatval
   this translated value now get's the same sign as dir
   and can then be divided by dir to yield a positive result
+  TODO really, points in the cube are in [-1;1) per component
 }
 begin
-	//This gives a unit float with same sign of dir
 	offset.floatval := 1;
+	//This gives a unit float with same sign of dir
 	offset.intval := offset.intval or (Pglfloatsizeduint(@dir)^ and glfloatsignbit);
 	// and adds it to pos
 	offset.floatval := pos - offset.floatval;
@@ -273,7 +274,7 @@ begin
 	progressVectorComponent[direction.Y <> 0](pos.Y, direction.Y, m);
 	progressVectorComponent[direction.Z <> 0](pos.Z, direction.Z, m);
 
-	// 3 possible branches so far (min)  (0 with sse)
+	// 3 possible branches so far (min)  (0 with sse?)
 
 	// if pos is not inside the unit-sized cube at origin, then m could be zero(or less)
 	// and there would have to be checks here.
