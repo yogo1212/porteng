@@ -410,6 +410,13 @@ begin
         mainUnit^.state := psGrounded
       else
         mainUnit^.state := psNoclip;
+
+    ieAbility1: ;
+    ieAbility2: ;
+    ieAbility3: ;
+    ieAbility4: ;
+    ieAbility5: ;
+    ieAbility6: ;
 	end;
 end;
 

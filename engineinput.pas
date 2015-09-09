@@ -20,6 +20,7 @@ type
 		ieCursorTickX, ieCursorTickY,
 		ieZoomTickX, ieZoomTickY,
 		ieNoclip,
+		ieAbility1, ieAbility2, ieAbility3, ieAbility4, ieAbility5, ieAbility6,
 		// The following can be used to express atomar GIEs (states);
 		ieMoveRelXp, ieMoveRelXn, ieMoveRelYp, ieMoveRelYn, ieMoveRelZp, ieMoveRelZn,
 		ieCursorXp, ieCursorXn, ieCursorYp, ieCursorYn, ieLookRelXZp, ieLookRelXZn,
@@ -379,6 +380,12 @@ begin
 		addBinding(Ord(mtkWheelY), TEngineInputElement.ieZoomTickY);
 		addBinding(Ord(mtkLeft), TEngineInputElement.ieMakeCursorMotionLook);
 		addBinding(Ord(mtkRight), TEngineInputElement.ieMakeCursorMotionTurnAndLock);
+		addBinding(SDL_SCANCODE_1, TEngineInputElement.ieAbility1);
+		addBinding(SDL_SCANCODE_2, TEngineInputElement.ieAbility2);
+		addBinding(SDL_SCANCODE_3, TEngineInputElement.ieAbility3);
+		addBinding(SDL_SCANCODE_4, TEngineInputElement.ieAbility4);
+		addBinding(SDL_SCANCODE_5, TEngineInputElement.ieAbility5);
+		addBinding(SDL_SCANCODE_6, TEngineInputElement.ieAbility6);
 	end
 	else
 		raise Exception.Create('no default input available for ' + device.ClassName);
