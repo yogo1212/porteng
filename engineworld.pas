@@ -237,6 +237,26 @@ begin
 	// no else necessary because result is expected to be 1 at most.
 end;
 
+procedure DoProgressVectorComponentDifferently(const pos, dir: GLfloat;
+	var Result: GLfloat);
+var
+	newpos: GLfloat;
+	tmp: GLdouble;
+const
+	rl = 0.99999;//TODO right limit
+begin
+	newpos := pos + dir;
+	newpos := Max(-1, newpos);
+	newpos := -Max(-rl, -newpos);
+	//newpos := Min(rl, newpos);
+
+	// don't run into sigfpe
+	tmp := GLdouble(newpos - pos) / dir;
+	// TODO sse?
+	Result := Min(tmp, Result);
+	// no else necessary because result is expected to be 1 at most.
+end;
+
 type
 	TProgressVectorProc = procedure(const pos, dir: GLfloat; var Result: GLfloat);
 
