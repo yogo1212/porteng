@@ -67,10 +67,10 @@ begin
 	begin
 		initialised := True;
 
-    GameResourceInit;
+		GameResourceInit;
 
 		GameTextureGUIShaderInit;
-    GameColourGUIShaderInit;
+		GameColourGUIShaderInit;
 
 		modname := EngineString('abilitybarmod', GUIxSalt, GUIdSalt);
 		texname := EngineString('abilitybartex', GUIxSalt, GUIdSalt);
@@ -102,8 +102,8 @@ end;
 
 procedure TGameAbilityBar.DrawSelf;
 begin
-  //getprogram(spTextureGUI).SetSize(boundry.X, boundry.Y);
-  PrepareShader(@asdfff);
+	//getprogram(spTextureGUI).SetSize(boundry.X, boundry.Y);
+	PrepareShader(@asdfff);
 	DrawModel(@asdfff);
 end;
 
