@@ -42,7 +42,6 @@ type
 		target: PGameUnit;
 		progress: single;
 		constructor Init(nability: PAbility; ntarget: PGameUnit);
-		destructor Clear;
 	end;
 
 	{ TGameUnit }
@@ -130,11 +129,6 @@ begin
 	ability := nability;
 	target := ntarget;
 	progress := 0;
-end;
-
-destructor TCast.Clear;
-begin
-	ability := @emptyAbility;
 end;
 
 { TGameUnit }
