@@ -17,10 +17,10 @@ begin
 end;
 
 function SampleAbilityAction(const ability: PAbility; const caster, target: PGameUnit)
-  : Boolean;
+  : TCastResult;
 begin
   caster^.statmodifiers.add(10, @DoubleSpeed);
-  Result := True;
+  Result := CR_OK;
 end;
 
 function CreateSampleAbility: TAbility;

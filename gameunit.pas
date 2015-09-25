@@ -5,15 +5,17 @@ unit GameUnit;
 interface
 
 uses
-	Classes, SysUtils, EngineUnit, EngineTypes, EngineMath, GameStats;
+	Classes, SysUtils, Math, EngineUnit, EngineTypes, EngineMath, GameStats;
 
 type
 	PGameUnit = ^TGameUnit;
 
 	PAbility = ^TAbility;
 
+	TCastResult = (CR_OK = 0, CR_OUT_OF_RANGE, CR_OUT_OF_MANA, CR_UNREST);
+
 	TAbilityFunc = function(const ability: PAbility;
-		const caster, target: PGameUnit): boolean;
+		const caster, target: PGameUnit): TCastResult;
 
 	{ TAbility }
 
@@ -25,9 +27,9 @@ type
 		resourcecost: longword;
     unrest: byte;
 		procedure Init(nrange, ncasttime, ncooldown: single; nresourcecost: longword;
-      nunrest: Byte; nCheckConditions, nTriggerAction: TAbilityFunc);
-		function StartCast(const caster, target: PGameUnit): boolean;
-		function FinaliseCast(const caster, target: PGameUnit): boolean;
+			nunrest: byte; nCheckConditions, nTriggerAction: TAbilityFunc);
+		function StartCast(const caster, target: PGameUnit): TCastResult;
+		function FinaliseCast(const caster, target: PGameUnit): TCastResult;
 		procedure passtime(seconds: single);
 	end;
 
@@ -59,55 +61,64 @@ type
 		procedure Cast(ai: word; target: PGameUnit);
 	end;
 
-function CheckRange(const ability: PAbility; const caster, target: PGameUnit): boolean;
-	inline;
-function CheckMana(const ability: PAbility; const caster, target: PGameUnit): boolean;
+function CheckRange(const ability: PAbility;
+	const caster, target: PGameUnit): TCastResult; inline;
+function CheckMana(const ability: PAbility;
+	const caster, target: PGameUnit): TCastResult;
 	inline;
 function DefaultConditionChecks(const ability: PAbility;
-	const caster, target: PGameUnit): boolean; inline;
+	const caster, target: PGameUnit): TCastResult; inline;
 
 implementation
 
-function DummyAbilityFunc(const ability: PAbility;
-	const caster, target: PGameUnit): boolean;
+function mergeCastResults(const a, b: TCastResult): TCastResult; inline;
 begin
-	Result := True;
+	Result := TCastResult(Max(Ord(a), Ord(b)));
 end;
 
-const
-	emptyAbility: TAbility = (CheckConditions: @DummyAbilityFunc;
-		TriggerAction: @DummyAbilityFunc; range: 1; casttime: 0; cooldown: 0;
-		remainingCooldown: 0; resourcecost: 0);
-
-function CheckRange(const ability: PAbility; const caster, target: PGameUnit): boolean;
+function CheckRange(const ability: PAbility;
+	const caster, target: PGameUnit): TCastResult;
 	inline;
 begin
-	Result := LengthSquare(caster^.physunit.pos - target^.physunit.pos) <=
-		(ability^.range * ability^.range);
+	if LengthSquare(caster^.physunit.pos - target^.physunit.pos) <= ability^.range then
+		Result := CR_OK
+	else
+		Result := CR_OUT_OF_RANGE;
 end;
 
-function CheckMana(const ability: PAbility; const caster, target: PGameUnit): boolean;
+function CheckMana(const ability: PAbility;
+	const caster, target: PGameUnit): TCastResult;
 	inline;
 begin
-	Result := caster^.resource >= ability^.resourcecost;
+	if caster^.resource >= ability^.resourcecost then
+		Result := CR_OK
+	else
+		Result := CR_OUT_OF_MANA;
 end;
 
-function CheckRest(const ability: PAbility; const caster, target: PGameUnit): boolean;
+function CheckRest(const ability: PAbility;
+	const caster, target: PGameUnit): TCastResult;
 	inline;
 begin
-	Result := caster^.unrest + ability^.unrest <= 255;
+	if caster^.unrest + ability^.unrest <= High(caster^.unrest) then
+		Result := CR_OK
+	else
+		Result := CR_UNREST;
 end;
 
-function CheckResources(const ability: PAbility; const caster, target: PGameUnit): boolean;
+function CheckResources(const ability: PAbility;
+	const caster, target: PGameUnit): TCastResult;
 	inline;
 begin
-  Result := CheckRest(ability, caster, target) and CheckMana(ability, caster, target);
+	Result := mergeCastResults(CheckRest(ability, caster, target),
+		CheckMana(ability, caster, target));
 end;
 
 function DefaultConditionChecks(const ability: PAbility;
-	const caster, target: PGameUnit): boolean; inline;
+	const caster, target: PGameUnit): TCastResult; inline;
 begin
-	Result := CheckRange(ability, caster, target) and CheckResources(ability, caster, target);
+	Result := mergeCastResults(CheckRange(ability, caster, target),
+		CheckResources(ability, caster, target));
 end;
 
 { TCast }
@@ -140,7 +151,7 @@ begin
 	// TODO ugli-brunches
 	if currentCast.progress > currentCast.ability^.casttime then
 	begin
-		if currentcast.ability^.FinaliseCast(@Self, currentCast.target) then
+		if currentcast.ability^.FinaliseCast(@Self, currentCast.target) = CR_OK then
 			currentCast.ability^.TriggerAction(currentCast.ability, @Self, currentCast.target);
 	end;
 
@@ -155,8 +166,7 @@ end;
 
 procedure TGameUnit.Cast(ai: word; target: PGameUnit);
 begin
-	if (currentCast.ability = @emptyAbility) and
-		abilities[ai].StartCast(@Self, target) then
+	if abilities[ai].StartCast(@Self, target) = CR_OK then
 		currentCast.Init(@abilities[ai], target);
 end;
 
@@ -175,16 +185,16 @@ begin
 	TriggerAction := nTriggerAction;
 end;
 
-function TAbility.StartCast(const caster, target: PGameUnit): boolean;
+function TAbility.StartCast(const caster, target: PGameUnit): TCastResult;
 begin
 	Result := CheckConditions(@Self, caster, target);
 	// TODO show cast-bar?
 end;
 
-function TAbility.FinaliseCast(const caster, target: PGameUnit): boolean;
+function TAbility.FinaliseCast(const caster, target: PGameUnit): TCastResult;
 begin
 	Result := CheckConditions(@Self, caster, target);
-	if Result then
+	if Result = CR_OK then
 		TriggerAction(@Self, caster, target);
 end;
 
