@@ -25,7 +25,7 @@ type
 	public
 		range, casttime, cooldown, remainingCooldown: single;
 		resourcecost: longword;
-    unrest: byte;
+		unrest: byte;
 		procedure Init(nrange, ncasttime, ncooldown: single; nresourcecost: longword;
 			nunrest: byte; nCheckConditions, nTriggerAction: TAbilityFunc);
 		function StartCast(const caster, target: PGameUnit): TCastResult;
@@ -50,12 +50,12 @@ type
 		physunit: TEngineUnit;
 		currentCast: TCast;
 		resource: longword;
-    unrest: Byte;
+		unrest: byte;
 
-    baseStats, stats: TGameStats;
-	  statmodifiers: TGameStatModifyState;
+		baseStats, stats: TGameStats;
+		statmodifiers: TGameStatModifyState;
 
-    procedure UpdateStats;
+		procedure UpdateStats;
 		procedure passtime(seconds: single);
 		// TRY casting the ability at index ai
 		procedure Cast(ai: word; target: PGameUnit);
@@ -139,10 +139,10 @@ end;
 
 procedure TGameUnit.UpdateStats;
 begin
-  stats := baseStats;
-  statmodifiers.Apply(stats);
+	stats := baseStats;
+	statmodifiers.Apply(stats);
 
-  physunit.speed := stats.speed;
+	physunit.speed := stats.speed;
 end;
 
 procedure TGameUnit.passtime(seconds: single);
@@ -172,15 +172,15 @@ end;
 
 { TAbility }
 
-procedure TAbility.Init(nrange, ncasttime, ncooldown: single; nresourcecost: longword;
-	nunrest: Byte; nCheckConditions, nTriggerAction: TAbilityFunc);
+procedure TAbility.Init(nrange, ncasttime, ncooldown: single;
+	nresourcecost: longword; nunrest: byte; nCheckConditions, nTriggerAction: TAbilityFunc);
 begin
 	range := nrange;
 	casttime := ncasttime;
 	cooldown := ncooldown;
 	remainingCooldown := 0;
 	resourcecost := nresourcecost;
-  unrest := nunrest;
+	unrest := nunrest;
 	CheckConditions := nCheckConditions;
 	TriggerAction := nTriggerAction;
 end;
@@ -210,4 +210,3 @@ begin
 end;
 
 end.
-

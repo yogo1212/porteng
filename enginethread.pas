@@ -6,7 +6,7 @@ interface
 
 uses
 	Classes, SysUtils, PortEngProj, EnginePort, EngineInput, EngineTimer, EngineFacilities,
-  EngineUnit, dglOpenGL;
+	EngineUnit, dglOpenGL;
 
 type
 
@@ -15,7 +15,7 @@ type
 	TGameThread = class(TThread)
 		procedure Execute; override;
 		constructor Create;
-    destructor Destroy; override;
+		destructor Destroy; override;
 	end;
 
 var
@@ -34,7 +34,7 @@ begin
 	begin
 		gameThr.Terminate;
 
-    FreeAndNil(gameThr);
+		FreeAndNil(gameThr);
 	end;
 end;
 
@@ -45,11 +45,11 @@ begin
 		Initialised := True;
 
 		GameInputInit(portengproject.mousekeyboard, portengproject.gamepad);
-    GameTimeInit;
+		GameTimeInit;
 
 		GamePortsInit;
 
-    GameUnitInit;
+		GameUnitInit;
 
 		gameThr := TGameThread.Create;
 
@@ -62,21 +62,21 @@ end;
 procedure TGameThread.Execute;
 var
 	gameThreadTimer: TGameTimer;
-  akku: UInt64;
-  time: GLfloat;
+	akku: UInt64;
+	time: GLfloat;
 begin
 	gameThreadTimer.Create(30);
-  akku := 0;
+	akku := 0;
 	while not Terminated do
-  begin
-    akku := gameThreadTimer.waitFor;
+	begin
+		akku := gameThreadTimer.waitFor;
 
-    //translate from milliSeconds to seconds
-    time := akku / 1000;
+		//translate from milliSeconds to seconds
+		time := akku / 1000;
 
 		PassPortTime(time);
-    PassAllUnitsTime(time);
-  end;
+		PassAllUnitsTime(time);
+	end;
 end;
 
 constructor TGameThread.Create;
@@ -86,7 +86,7 @@ end;
 
 destructor TGameThread.Destroy;
 begin
-  WaitForThreadTerminate(ThreadID, 0);
+	WaitForThreadTerminate(ThreadID, 0);
 	inherited Destroy;
 end;
 

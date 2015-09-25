@@ -310,7 +310,7 @@ begin
 	rotaCamXZproc := @DoRotaCamAndUnitXZ;
 	rotaCamYproc := @DoRotaCamAndUnitY;
 
-  mainUnit^.SetRota(camRota);
+	mainUnit^.SetRota(camRota);
 end;
 
 procedure TGamePort.UnlockRota;
