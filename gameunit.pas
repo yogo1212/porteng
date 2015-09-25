@@ -12,6 +12,8 @@ type
 
 	PAbility = ^TAbility;
 
+	TAbiltyID = 0..5;
+
 	TCastResult = (CR_OK = 0, CR_OUT_OF_RANGE, CR_OUT_OF_MANA, CR_UNREST);
 
 	TAbilityFunc = function(const ability: PAbility;
@@ -46,7 +48,7 @@ type
 	{ TGameUnit }
 
 	TGameUnit = object
-		abilities: array[0..5] of TAbility;
+		abilities: array[TAbiltyID] of TAbility; // TODO this should be variable-size
 		physunit: TEngineUnit;
 		currentCast: TCast;
 		resource: longword;
@@ -58,7 +60,7 @@ type
 		procedure UpdateStats;
 		procedure passtime(seconds: single);
 		// TRY casting the ability at index ai
-		procedure Cast(ai: word; target: PGameUnit);
+		procedure Cast(ai: TAbiltyID; target: PGameUnit);
 	end;
 
 function CheckRange(const ability: PAbility;
@@ -164,7 +166,7 @@ begin
 	abilities[5].passtime(seconds);
 end;
 
-procedure TGameUnit.Cast(ai: word; target: PGameUnit);
+procedure TGameUnit.Cast(ai: TAbiltyID; target: PGameUnit);
 begin
 	if abilities[ai].StartCast(@Self, target) = CR_OK then
 		currentCast.Init(@abilities[ai], target);
