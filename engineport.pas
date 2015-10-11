@@ -50,6 +50,7 @@ type
 		scale: GLfloat;
 		viewPortX, viewPortY, viewPortW, viewPortH: word;
 		Render: TObjProc;
+
 		//end tmp
 		procedure HandleStateUpdate(const evt: TEngineInputElement; const Value: shortint);
 		procedure HandleEvent(const evt: TEngineInputElement; const Value: shortint);
@@ -405,11 +406,11 @@ begin
 				mainUnit^.SetRota(camRota);
 		ieCursorTickX, ieCursorTickY,
 		ieZoomTickX: ;
-    ieNoclip:
-      if mainUnit^.state = psNoclip then
-        mainUnit^.state := psGrounded
-      else
-        mainUnit^.state := psNoclip;
+		ieNoclip:
+			if mainUnit^.state = psNoclip then
+				mainUnit^.state := psGrounded
+			else
+				mainUnit^.state := psNoclip;
 
     ieAbility1: ;
     ieAbility2: ;

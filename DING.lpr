@@ -27,7 +27,7 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
 	EngineModelLoader,
 	EngineMouseKeyboard,
 	EngineObject,
-  EngineOctree,
+	EngineOctree,
 	EnginePort,
 	EngineResource,
 	EngineResourceColour,
