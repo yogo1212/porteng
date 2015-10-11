@@ -21,6 +21,7 @@ type
 
 	{ TAbility }
 
+	// non-critical game-logic-stuff can probably be a slow TObject anyway
 	TAbility = object
 	private
 		CheckConditions, TriggerAction: TAbilityFunc;
@@ -39,15 +40,17 @@ type
 
 	TCast = object
 		ability: PAbility;
-		target: PGameUnit;
+		caster, target: PGameUnit;
 		progress: single;
-		constructor Init(nability: PAbility; ntarget: PGameUnit);
+		constructor Init(nability: PAbility; ncaster, ntarget: PGameUnit);
+		procedure Inpterrupt;
+		function advanceTime(seconds: single): boolean;
+		procedure Clear;
 	end;
 
 	{ TGameUnit }
 
 	TGameUnit = object
-		abilities: array[TAbiltyID] of TAbility; // TODO this should be variable-size
 		physunit: TEngineUnit;
 		currentCast: TCast;
 		resource: longword;
@@ -58,8 +61,8 @@ type
 
 		procedure UpdateStats;
 		procedure passtime(seconds: single);
-		// TRY casting the ability at index ai
-		procedure Cast(ai: TAbiltyID; target: PGameUnit);
+		// TRY casting the ability
+		procedure Cast(ai: PAbility; target: PGameUnit);
 	end;
 
 function CheckRange(const ability: PAbility;
@@ -124,11 +127,38 @@ end;
 
 { TCast }
 
-constructor TCast.Init(nability: PAbility; ntarget: PGameUnit);
+constructor TCast.Init(nability: PAbility; ncaster, ntarget: PGameUnit);
 begin
 	ability := nability;
 	target := ntarget;
+	caster := ncaster;
 	progress := 0;
+end;
+
+procedure TCast.Inpterrupt;
+begin
+
+end;
+
+function TCast.advanceTime(seconds: single): boolean;
+begin
+	Result := False;
+	progress += seconds;
+
+	// TODO oh god, this would be so much nicer with events
+	if progress > ability^.casttime then
+	begin
+		if ability^.FinaliseCast(caster, target) = CR_OK then
+		begin
+			Result := True;
+			ability^.TriggerAction(ability, caster, target);
+		end;
+	end;
+end;
+
+procedure TCast.Clear;
+begin
+
 end;
 
 { TGameUnit }
@@ -143,27 +173,14 @@ end;
 
 procedure TGameUnit.passtime(seconds: single);
 begin
-	currentcast.progress += seconds;
-	// TODO ugli-brunches
-	if currentCast.progress > currentCast.ability^.casttime then
-	begin
-		if currentcast.ability^.FinaliseCast(@Self, currentCast.target) = CR_OK then
-			currentCast.ability^.TriggerAction(currentCast.ability, @Self, currentCast.target);
-	end;
-
-	// hand-rolled-sushi:
-	abilities[0].passtime(seconds);
-	abilities[1].passtime(seconds);
-	abilities[2].passtime(seconds);
-	abilities[3].passtime(seconds);
-	abilities[4].passtime(seconds);
-	abilities[5].passtime(seconds);
+	if currentCast.advanceTime(seconds) then
+		currentCast.Clear;
 end;
 
-procedure TGameUnit.Cast(ai: TAbiltyID; target: PGameUnit);
+procedure TGameUnit.Cast(ai: PAbility; target: PGameUnit);
 begin
-	if abilities[ai].StartCast(@Self, target) = CR_OK then
-		currentCast.Init(@abilities[ai], target);
+	if ai^.StartCast(@Self, target) = CR_OK then
+		currentCast.Init(ai, @Self, target);
 end;
 
 { TAbility }
