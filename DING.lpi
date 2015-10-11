@@ -31,7 +31,7 @@
         <Display Value=":1"/>
       </local>
     </RunParams>
-    <Units Count="43">
+    <Units Count="44">
       <Unit0>
         <Filename Value="DING.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -74,6 +74,7 @@
       <Unit8>
         <Filename Value="enginethread.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineThread"/>
       </Unit8>
       <Unit9>
         <Filename Value="enginetypes.pas"/>
@@ -207,6 +208,7 @@
       <Unit38>
         <Filename Value="gamespell.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="GameSpell"/>
       </Unit38>
       <Unit39>
         <Filename Value="gamestats.pas"/>
@@ -225,6 +227,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="EngineOctree"/>
       </Unit42>
+      <Unit43>
+        <Filename Value="gameport.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GamePort"/>
+      </Unit43>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

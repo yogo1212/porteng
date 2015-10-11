@@ -47,6 +47,7 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
 	EngineWorld,
 	GameContext,
 	GameGUI,
+	GamePort,
 	GameSpell,
 	GameStats,
 	GameUnit;
