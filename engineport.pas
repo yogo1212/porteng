@@ -14,9 +14,9 @@ uses
 type
 	TEventValueProc = procedure(Value: double) of object; register;
 
-	{ TGamePort }
+	{ TEnginePort }
 
-	TGamePort = class(TGameObject)
+	TEnginePort = class(TGameObject)
 	private
 		states: array[TEngineLogicRelatedElement] of shortint;
 		tmp: GLfloat;
@@ -62,7 +62,7 @@ type
 		destructor Destroy; override;
 	end;
 
-procedure GamePortsInit;
+procedure EnginePortsInit;
 procedure PassPortTime(seconds: GLfloat);
 procedure RenderPorts;
 procedure definePortSpace(x, y: longword);
@@ -83,7 +83,7 @@ type
 var
 	initialised: boolean = False;
 	timedummy: TTimeDummy;
-	ports: array[0..8] of TGamePort;
+	ports: array[0..8] of TEnginePort;
 	timeprocs: array[0..8] of TPassTimeProc;
 	portcnt: byte;
 
@@ -154,12 +154,12 @@ procedure addPort(input: TInput);
 begin
 	if portcnt < Length(ports) then
 	begin
-		ports[portcnt] := TGamePort.Create(input);
+		ports[portcnt] := TEnginePort.Create(input);
 		Inc(portcnt);
 	end;
 end;
 
-procedure removePort(port: TGamePort);
+procedure removePort(port: TEnginePort);
 var
 	found: boolean = False;
 	zhlr: byte;
@@ -190,7 +190,7 @@ begin
 	logTrace('Port added for unused device ' + dev.GetName);
 end;
 
-procedure GamePortsCleanup;
+procedure EnginePortsCleanup;
 var
 	zhlr: integer;
 begin
@@ -200,13 +200,13 @@ begin
 	FreeAndNil(timedummy);
 end;
 
-procedure GamePortsInit;
+procedure EnginePortsInit;
 begin
 	if not initialised then
 	begin
 		initialised := True;
 
-		AddFreeRoutine(@GamePortsCleanup);
+		AddFreeRoutine(@EnginePortsCleanup);
 		GameMapInit;
 
 		timedummy := TTimeDummy.Create;
@@ -238,9 +238,9 @@ begin
 	//Do muffin
 end;
 
-{ TGamePort }
+{ TEnginePort }
 
-procedure TGamePort.DoRender;
+procedure TEnginePort.DoRender;
 begin
 	glViewport(viewPortX, viewPortY, viewPortW, viewPortH);
 	glLoadIdentity;
@@ -272,39 +272,39 @@ begin
 	TryUpdatePos;
 end;
 
-procedure TGamePort.DoRotaUnitXZ(Value: double);
+procedure TEnginePort.DoRotaUnitXZ(Value: double);
 begin
 	mainUnit^.rotateYclamped(Value, 0);
 end;
 
-procedure TGamePort.DoRotaUnitY(Value: double);
+procedure TEnginePort.DoRotaUnitY(Value: double);
 begin
 	mainUnit^.rotateYclamped(0, Value);
 end;
 
-procedure TGamePort.DoRotaCamXZ(Value: double);
+procedure TEnginePort.DoRotaCamXZ(Value: double);
 begin
 	Rotate(Value, @camRota);
 end;
 
-procedure TGamePort.DoRotaCamY(Value: double);
+procedure TEnginePort.DoRotaCamY(Value: double);
 begin
 	RotateClamped(Value, @camRota);
 end;
 
-procedure TGamePort.DoRotaCamAndUnitXZ(Value: double);
+procedure TEnginePort.DoRotaCamAndUnitXZ(Value: double);
 begin
 	mainUnit^.rotateYclamped(Value, 0);
 	Rotate(Value, @camRota);
 end;
 
-procedure TGamePort.DoRotaCamAndUnitY(Value: double);
+procedure TEnginePort.DoRotaCamAndUnitY(Value: double);
 begin
 	mainUnit^.rotateYclamped(0, Value);
 	RotateClamped(Value, @camRota);
 end;
 
-procedure TGamePort.LockRota;
+procedure TEnginePort.LockRota;
 begin
 	rotaUnitXZproc := @DoRotaCamAndUnitXZ;
 	rotaUnitYproc := @DoRotaCamAndUnitY;
@@ -314,7 +314,7 @@ begin
 	mainUnit^.SetRota(camRota);
 end;
 
-procedure TGamePort.UnlockRota;
+procedure TEnginePort.UnlockRota;
 begin
 	rotaUnitXZproc := @DoRotaUnitXZ;
 	rotaUnitYproc := @DoRotaUnitY;
@@ -322,7 +322,7 @@ begin
 	rotaCamYproc := @DoRotaCamY;
 end;
 
-procedure TGamePort.DoInit;
+procedure TEnginePort.DoInit;
 
 	function getownindex: byte;
 	begin
@@ -364,7 +364,7 @@ begin
 	DoRender;
 end;
 
-procedure TGamePort.HandleStateUpdate(const evt: TEngineInputElement;
+procedure TEnginePort.HandleStateUpdate(const evt: TEngineInputElement;
 	const Value: shortint);
 
 	procedure UpdateVelocity;
@@ -382,7 +382,7 @@ begin
 	//  ' und ' + IntToStr(states[ieMoveRelZn]));
 end;
 
-procedure TGamePort.HandleEvent(const evt: TEngineInputElement; const Value: shortint);
+procedure TEnginePort.HandleEvent(const evt: TEngineInputElement; const Value: shortint);
 begin
 	states[evt] := Value;
 
@@ -421,7 +421,7 @@ begin
 	end;
 end;
 
-procedure TGamePort.passtime(seconds: GLfloat);
+procedure TEnginePort.passtime(seconds: GLfloat);
 begin
 	tmp := seconds * (60 / 127);
 
@@ -434,7 +434,7 @@ begin
 	camera.dist += states[ieZoom] * tmp;
 end;
 
-procedure TGamePort.RenderWorld;
+procedure TEnginePort.RenderWorld;
 begin
 	GetProgram(spMap).Use;
 	MapCache[0, 0, 0].draw();
@@ -466,7 +466,7 @@ begin
 	MapCache[2, 2, 2].draw();
 end;
 
-procedure TGamePort.UpdateMapCache;
+procedure TEnginePort.UpdateMapCache;
 begin
 	MapCache[0, 0, 0].UpdateRenderData(OldRenderPos, Min(sizeX, sizeY));
 	MapCache[0, 0, 1].UpdateRenderData(OldRenderPos, Min(sizeX, sizeY));
@@ -499,12 +499,12 @@ begin
 	OldRenderPos := mainUnit^.pos;
 end;
 
-procedure TGamePort.TryUpdatePos;
+procedure TEnginePort.TryUpdatePos;
 begin
 	genericLookup(LengthSquare(OldRenderPos - mainUnit^.pos) > 100, @UpdateMapCache);
 end;
 
-constructor TGamePort.Create(inp: TInput);
+constructor TEnginePort.Create(inp: TInput);
 begin
 	inherited Create;
 	input := inp;
@@ -522,7 +522,7 @@ begin
 	Render := @DoInit;
 end;
 
-destructor TGamePort.Destroy;
+destructor TEnginePort.Destroy;
 begin
 	FreeAndNil(input);
 	inherited Destroy;

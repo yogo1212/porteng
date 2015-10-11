@@ -47,7 +47,7 @@ begin
 		GameInputInit(portengproject.mousekeyboard, portengproject.gamepad);
 		GameTimeInit;
 
-		GamePortsInit;
+		EnginePortsInit;
 
 		GameUnitInit;
 
