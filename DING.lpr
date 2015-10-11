@@ -71,6 +71,7 @@ begin
 {$endif}
 
 		SetPortListener;
+		GameLogicInit;
 
 		//EngineForm.mainWindow.toggle_fullscreen;
 		EngineForm.mainWindow.mainLoop;

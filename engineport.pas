@@ -6,7 +6,7 @@ unit EnginePort;
 interface
 
 uses
-	Classes, SysUtils, EngineDebug, EngineInput, EngineDevice, EngineStrings, GameContext,
+	Classes, SysUtils, EngineDebug, EngineInput, EngineDevice, EngineStrings,
 	EngineGUI, dglOpenGL, EngineUnit, EngineMath, EngineFacilities, EngineShader, GameGUI,
 	EngineTypes, EngineWorld, EngineCamera, Convenience, EngineMouseKeyboard,
 	Math;
@@ -62,10 +62,17 @@ type
 		destructor Destroy; override;
 	end;
 
+	TPortModificationCallback = procedure(port: TEnginePort);
+	TWordRenderCallback = procedure;
+
+
 procedure EnginePortsInit;
 procedure PassPortTime(seconds: GLfloat);
 procedure RenderPorts;
 procedure definePortSpace(x, y: longword);
+procedure SetPortCreationCallback(cb: TPortModificationCallback);
+procedure SetPortDeletionCallback(cb: TPortModificationCallback);
+procedure SetWorldRenderCallback(cb: TWordRenderCallback);
 procedure SetPortListener;
 
 implementation
@@ -86,6 +93,8 @@ var
 	ports: array[0..8] of TEnginePort;
 	timeprocs: array[0..8] of TPassTimeProc;
 	portcnt: byte;
+	creationCB, deletionCB: TPortModificationCallback;
+	worldRenderCB: TWordRenderCallback;
 
 	renderHeight, renderWidth: longword;
 
@@ -206,8 +215,11 @@ begin
 	begin
 		initialised := True;
 
+		creationCB := nil;
+		deletionCB := nil;
+		worldRenderCB := nil;
+
 		AddFreeRoutine(@EnginePortsCleanup);
-		GameMapInit;
 
 		timedummy := TTimeDummy.Create;
 		timeprocs[0] := @timedummy.passtime;
@@ -220,10 +232,26 @@ begin
 		timeprocs[7] := @timedummy.passtime;
 		timeprocs[8] := @timedummy.passtime;
 
+		// TODO this needs to be in gamecontext
 		InitGuiTextures;
 
 		GameUnitInit;
 	end;
+end;
+
+procedure SetPortCreationCallback(cb: TPortModificationCallback);
+begin
+	creationCB := cb;
+end;
+
+procedure SetPortDeletionCallback(cb: TPortModificationCallback);
+begin
+	deletionCB := cb;
+end;
+
+procedure SetWorldRenderCallback(cb: TWordRenderCallback);
+begin
+	worldRenderCB := cb;
 end;
 
 procedure SetPortListener;
@@ -262,7 +290,7 @@ begin
 
 	RenderWorld;
 
-	RenderWorldObjects;
+	worldRenderCB;
 
 	glDisable(GL_DEPTH_TEST);
 	HUD.DrawSelf;
@@ -339,10 +367,14 @@ procedure TEnginePort.DoInit;
 var
 	xit, yit, zit: byte;
 begin
-	// TODO giev proper model
-	// EngineString('playerUnit_' + IntToStr(portno))
-	mainUnit := CreateUnit(0, EngineString('colBall'), GamePosition(0, 12, 0, 0, 0, 0),
-		XYZRotation(0, 0), 5);
+	if creationCB <> nil then
+		creationCB(Self);
+	if mainUnit = nil then
+		mainUnit := CreateUnit(0, EngineString('colBall'), GamePosition(0, 12, 0, 0, 0, 0),
+			XYZRotation(0, 0), 5);
+	if HUD = nil then
+		// TODO need engine default HUD
+		HUD := TGameInterfaceMaster.Create;
 
 	camera.Create(@mainUnit^.pos, Vec3(0, 1, 0), 4, @camRota, gcFixed);
 
@@ -354,8 +386,6 @@ begin
 				MapCache[xit, yit, zit].Create(mainUnit^.pos.worldPos +
 					Vec3i(xit - (mapoffset and $3), yit - ((mapoffset shr 2) and $3),
 					zit - ((mapoffset shr 4) and $3)));
-
-	HUD := TGameInterfaceMaster.Create;
 
 	dividePortSpace;
 	timeprocs[getownindex] := @passtime;
@@ -524,6 +554,8 @@ end;
 
 destructor TEnginePort.Destroy;
 begin
+	if Assigned(deletionCB) then
+		deletionCB(Self);
 	FreeAndNil(input);
 	inherited Destroy;
 end;

@@ -7,10 +7,10 @@ interface
 uses
 	Classes, SysUtils, EngineShader, EngineFacilities, EngineTypes, dglOpenGL,
 	EngineObject, EngineResourceColour, EngineResourceTexture, EngineResource,
-	EngineText, EngineTextureLoader, EngineResourceLoader, EngineStrings, EngineWorld;
+	EngineText, EngineTextureLoader, EngineResourceLoader, EngineStrings, EngineWorld,
+	EnginePort, GameUnit, EngineUnit, GameGUI, GamePort;
 
-procedure RenderWorldObjects; inline;
-procedure GameMapInit;
+procedure GameLogicInit;
 
 implementation
 
@@ -65,7 +65,7 @@ begin
 	GameResourceAdd(ColouredBallModelLoader(1, 3, Vec3(0, 1, 0), ballname), ballname);
 end;
 
-procedure RenderWorldObjects;
+procedure DoRenderWorldObjects;
 begin
 	textobj.Draw;
 	testobj.Draw;
@@ -109,6 +109,33 @@ begin
 
 		AddFreeRoutine(@GameMapCleanup);
 	end;
+end;
+
+var
+	players: TGamePort;
+
+procedure portCreationCB(port: TEnginePort);
+begin
+	port.mainUnit := CreateUnit(0, EngineString('colBall'),
+		GamePosition(0, 12, 0, 0, 0, 0), XYZRotation(0, 0), 5);
+	port.HUD := TGameInterfaceMaster.Create;
+end;
+
+procedure portDeletionCB(port: TEnginePort);
+begin
+	// TODO remove TGamePort
+	port.mainUnit^.Destroy;
+	FreeAndNil(port.mainUnit);
+	FreeAndNil(port.HUD);
+end;
+
+procedure GameLogicInit;
+begin
+	GameMapInit;
+
+	SetPortCreationCallback(@portCreationCB);
+	SetPortDeletionCallback(@portDeletionCB);
+	SetWorldRenderCallback(@DoRenderWorldObjects);
 end;
 
 end.
