@@ -43,7 +43,7 @@ type
 
 procedure PassAllUnitsTime(seconds: GLfloat);
 procedure DrawAllUnits;
-procedure GameUnitInit;
+procedure EngineUnitInit;
 function CreateUnit(newid: longword; Model: TEngineString; position: TGamePosition;
 	rotation: TGameRotation; nspeed: GLfloat): PEngineUnit;
 
@@ -137,7 +137,7 @@ var
 
 	updateTable: array[boolean] of TGameUpdateProc = (@DontUpdate, @DoUpdate);
 
-procedure GameUnitFree;
+procedure EngineUnitFree;
 var
 	zhlr: cardinal;
 begin
@@ -167,7 +167,7 @@ begin
 	end;
 end;
 
-procedure GameUnitInit;
+procedure EngineUnitInit;
 begin
 	if not initialized then
 	begin
@@ -175,7 +175,7 @@ begin
 		gameUnitComparer := TGameUnitComparer.Create;
 		units := TSortedMemoryManager.Create(gameUnitComparer,
 			TFragmentedMemoryManager.Create(SizeOf(TEngineUnit), 50));
-		AddFreeRoutine(@GameUnitFree);
+		AddFreeRoutine(@EngineUnitFree);
 	end;
 end;
 

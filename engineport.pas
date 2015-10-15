@@ -88,7 +88,6 @@ type
 	end;
 
 var
-	initialised: boolean = False;
 	timedummy: TTimeDummy;
 	ports: array[0..8] of TEnginePort;
 	timeprocs: array[0..8] of TPassTimeProc;
@@ -199,6 +198,9 @@ begin
 	logTrace('Port added for unused device ' + dev.GetName);
 end;
 
+var
+	initialised: boolean = False;
+
 procedure EnginePortsCleanup;
 var
 	zhlr: integer;
@@ -234,8 +236,6 @@ begin
 
 		// TODO this needs to be in gamecontext
 		InitGuiTextures;
-
-		GameUnitInit;
 	end;
 end;
 
@@ -442,12 +442,12 @@ begin
 			else
 				mainUnit^.state := psNoclip;
 
-    ieAbility1: ;
-    ieAbility2: ;
-    ieAbility3: ;
-    ieAbility4: ;
-    ieAbility5: ;
-    ieAbility6: ;
+		{ieAbility1: bound_ability[0].activate;
+    ieAbility2: bound_ability[0].activate;
+    ieAbility3: bound_ability[0].activate;
+    ieAbility4: bound_ability[0].activate;
+    ieAbility5: bound_ability[0].activate;
+    ieAbility6: bound_ability[0].activate; }
 	end;
 end;
 

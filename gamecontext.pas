@@ -5,17 +5,16 @@ unit GameContext;
 interface
 
 uses
-	Classes, SysUtils, EngineShader, EngineFacilities, EngineTypes, dglOpenGL,
+	Classes, SysUtils, PortEngProj, EngineShader, EngineFacilities, EngineTypes, dglOpenGL,
 	EngineObject, EngineResourceColour, EngineResourceTexture, EngineResource,
 	EngineText, EngineTextureLoader, EngineResourceLoader, EngineStrings, EngineWorld,
-	EnginePort, GameUnit, EngineUnit, GameGUI, GamePort;
+	EnginePort, EngineUnit, GameUnit, GamePort, EngineInput;
 
 procedure GameLogicInit;
 
 implementation
 
 var
-	initialised: boolean = False;
 	testobj, textobj, testbmpobj: TGameGraphicsObj;
 	testname, textname, testbmpname: TEngineString;
 	ballname: TEngineString;
@@ -72,70 +71,64 @@ begin
 	testbmpobj.Draw;
 end;
 
-procedure GameMapCleanup;
+procedure FreeMapResources;
+begin
+	GameResourceUnUnse(testname);
+	GameResourceUnUnse(textname);
+	GameResourceUnUnse(testbmpname);
+	GameResourceDelete(testname);
+	GameResourceDelete(textname);
+	GameResourceDelete(testbmpname);
+	// TODO do units have longer life-time than this?
+	//GameResourceDelete(ballname);
+end;
+
+procedure InitMapResources;
+begin
+	EngineResourceInit;
+
+	GameWorldInit;
+
+	GameTextureShaderInit;
+	GameColorShaderInit;
+
+	SetupTestObj;
+	SetupTextObj;
+	SetupBMPTestObj;
+	SetupTestBall;
+end;
+
+var
+	initialised: boolean = False;
+
+procedure GameLogicFree;
 begin
 	if initialised then
 	begin
 		initialised := False;
 
-		GameResourceUnUnse(testname);
-		GameResourceUnUnse(textname);
-		GameResourceUnUnse(testbmpname);
-		GameResourceDelete(testname);
-		GameResourceDelete(textname);
-		GameResourceDelete(testbmpname);
-		GameResourceDelete(ballname);
+		FreeMapResources;
 	end;
-end;
-
-procedure GameMapInit;
-begin
-	if not initialised then
-	begin
-		initialised := True;
-
-		GameResourceInit;
-
-		GameWorldInit;
-
-		GameTextureShaderInit;
-		GameColorShaderInit;
-
-		SetupTestObj;
-		SetupTextObj;
-		SetupBMPTestObj;
-		SetupTestBall;
-
-
-		AddFreeRoutine(@GameMapCleanup);
-	end;
-end;
-
-var
-	players: TGamePort;
-
-procedure portCreationCB(port: TEnginePort);
-begin
-	port.mainUnit := CreateUnit(0, EngineString('colBall'),
-		GamePosition(0, 12, 0, 0, 0, 0), XYZRotation(0, 0), 5);
-	port.HUD := TGameInterfaceMaster.Create;
-end;
-
-procedure portDeletionCB(port: TEnginePort);
-begin
-	// TODO remove TGamePort
-	port.mainUnit^.Destroy;
-	FreeAndNil(port.mainUnit);
-	FreeAndNil(port.HUD);
 end;
 
 procedure GameLogicInit;
 begin
-	GameMapInit;
+	if not initialised then
+	begin
+		initialised := True;
+		GameInputInit(portengproject.mousekeyboard, portengproject.gamepad);
 
-	SetPortCreationCallback(@portCreationCB);
-	SetPortDeletionCallback(@portDeletionCB);
-	SetWorldRenderCallback(@DoRenderWorldObjects);
+		GamePortInit;
+
+		EngineUnitInit;
+
+		SetPortListener;
+		InitMapResources;
+		SetWorldRenderCallback(@DoRenderWorldObjects);
+
+
+		AddFreeRoutine(@GameLogicFree);
+	end;
 end;
 
 end.

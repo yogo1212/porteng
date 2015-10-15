@@ -49,7 +49,7 @@ type
   end;
 
 
-procedure GameResourceInit;
+procedure EngineResourceInit;
 
 procedure GameResourceAdd(btype : TResourceBuilderType;
   rPath: TEngineString);
@@ -66,7 +66,7 @@ var
 	resources: TKeyBasedMemoryManager;
 	initialised: boolean = False;
 
-procedure GameResourceDestroy;
+procedure EngineResourceDestroy;
 begin
 	if initialised then
 	begin
@@ -77,14 +77,14 @@ begin
 	end;
 end;
 
-procedure GameResourceInit;
+procedure EngineResourceInit;
 begin
 	if not initialised then
 	begin
 		initialised := True;
 		resources := TSortedMemoryManager.Create(TPGameResourceComparer.Create,
       TContinuousMemoryManager.Create(SizeOf(TGameResource), 50));
-		AddFreeRoutine(@GameResourceDestroy);
+		AddFreeRoutine(@EngineResourceDestroy);
 	end;
 end;
 

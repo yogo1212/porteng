@@ -44,12 +44,7 @@ begin
 	begin
 		Initialised := True;
 
-		GameInputInit(portengproject.mousekeyboard, portengproject.gamepad);
 		GameTimeInit;
-
-		EnginePortsInit;
-
-		GameUnitInit;
 
 		gameThr := TGameThread.Create;
 

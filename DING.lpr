@@ -70,7 +70,6 @@ begin
 		SetGlDebugCallback;
 {$endif}
 
-		SetPortListener;
 		GameLogicInit;
 
 		//EngineForm.mainWindow.toggle_fullscreen;

@@ -67,7 +67,7 @@ begin
 	begin
 		initialised := True;
 
-		GameResourceInit;
+		EngineResourceInit;
 
 		GameTextureGUIShaderInit;
 		GameColourGUIShaderInit;

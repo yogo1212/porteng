@@ -6,7 +6,7 @@ interface
 
 uses
 	Classes, SysUtils, dglOpenGL, EngineShader, Math, EngineTypes, EngineFileUtils,
-	Convenience, EngineMath, EngineMemory, EngineDebug, EngineOctree;
+	Convenience, EngineMemory, EngineDebug, EngineOctree;
 
 {$UNDEF ENGINEDEBUG}
 {$UNDEF USEDEPTHACCU}
