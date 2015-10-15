@@ -106,6 +106,7 @@
       <Unit15>
         <Filename Value="engineresource.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineResource"/>
       </Unit15>
       <Unit16>
         <Filename Value="enginedatatypes.pas"/>
@@ -141,6 +142,7 @@
       <Unit23>
         <Filename Value="enginefacilities.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineFacilities"/>
       </Unit23>
       <Unit24>
         <Filename Value="engineresourcecolour.pas"/>
