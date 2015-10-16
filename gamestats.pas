@@ -55,8 +55,8 @@ begin
 		(priority <= PGameStatModifier(mods.Get(tmpindex))^.priority) do
 		Inc(tmpindex);
 
-  mods.Insert(tmpindex);
-  mods.Items[tmpindex] := @tmpmod;
+	mods.Insert(tmpindex);
+	mods.Items[tmpindex] := @tmpmod;
 	{ // binary-search
   mods.Get((left + right) / 2);
   }
@@ -76,12 +76,12 @@ end;
 
 procedure TGameStatModifyState.Delete(priority: byte; proc: TGameStatModifierProc);
 var
-	tmpindex: Cardinal;
+	tmpindex: cardinal;
 begin
 	tmpindex := 0;
-	while (tmpindex < mods.Count) and
-		not((priority = PGameStatModifier(mods.Get(tmpindex))^.priority)
-    and (proc = PGameStatModifier(mods.Get(tmpindex))^.proc)) do
+	while (tmpindex < mods.Count) and not
+		((priority = PGameStatModifier(mods.Get(tmpindex))^.priority) and
+			(proc = PGameStatModifier(mods.Get(tmpindex))^.proc)) do
 		Inc(tmpindex);
 	mods.Delete(tmpindex);
 end;
