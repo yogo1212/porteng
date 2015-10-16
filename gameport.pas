@@ -37,7 +37,8 @@ begin
 	tmpport.port := port;
 	ports.Add(Pointer(tmpport));
 	port.mainUnit := CreateUnit(0, EngineString('colBall'),
-		GamePosition(0, 12, 0, 0, 0, 0), XYZRotation(0, 0), 5);
+		GamePosition(0, 12, 0, 0, 0, 0), XYZRotation(0, 0), 0);
+	tmpport.u.Init(port.mainUnit, 5);
 	port.HUD := TGameInterfaceMaster.Create;
 end;
 

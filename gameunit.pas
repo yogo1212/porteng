@@ -63,6 +63,7 @@ type
 		procedure passtime(seconds: single);
 		// TRY casting the ability
 		procedure Cast(ai: PAbility; target: PGameUnit);
+		constructor Init(u: PEngineUnit; speed: single);
 	end;
 
 function CheckRange(const ability: PAbility;
@@ -175,12 +176,27 @@ procedure TGameUnit.passtime(seconds: single);
 begin
 	if currentCast.advanceTime(seconds) then
 		currentCast.Clear;
+
 end;
 
 procedure TGameUnit.Cast(ai: PAbility; target: PGameUnit);
 begin
 	if ai^.StartCast(@Self, target) = CR_OK then
 		currentCast.Init(ai, @Self, target);
+end;
+
+constructor TGameUnit.Init(u: PEngineUnit; speed: single);
+begin
+	physunit := u;
+
+	currentCast.Clear;
+	resource := 0;
+	unrest := 0;
+
+	FillChar(baseStats, SizeOf(baseStats), 0);
+	baseStats.speed := speed;
+	statmodifiers.Init;
+	UpdateStats;
 end;
 
 { TAbility }
