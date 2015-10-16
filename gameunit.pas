@@ -51,7 +51,7 @@ type
 	{ TGameUnit }
 
 	TGameUnit = object
-		physunit: TEngineUnit;
+		physunit: PEngineUnit;
 		currentCast: TCast;
 		resource: longword;
 		unrest: byte;
@@ -84,7 +84,7 @@ function CheckRange(const ability: PAbility;
 	const caster, target: PGameUnit): TCastResult;
 	inline;
 begin
-	if LengthSquare(caster^.physunit.pos - target^.physunit.pos) <= ability^.range then
+	if LengthSquare(caster^.physunit^.pos - target^.physunit^.pos) <= ability^.range then
 		Result := CR_OK
 	else
 		Result := CR_OUT_OF_RANGE;
@@ -168,7 +168,7 @@ begin
 	stats := baseStats;
 	statmodifiers.Apply(stats);
 
-	physunit.speed := stats.speed;
+	physunit^.speed := stats.speed;
 end;
 
 procedure TGameUnit.passtime(seconds: single);
