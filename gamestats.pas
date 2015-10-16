@@ -27,7 +27,7 @@ type
 	private
 		mods: TContinuousMemoryManager;
 	public
-		constructor Create;
+		constructor Init;
 		procedure Add(priority: byte; proc: TGameStatModifierProc);
 		procedure Apply(var stats: TGameStats); register;
 		procedure Delete(priority: byte; proc: TGameStatModifierProc);
@@ -37,7 +37,7 @@ implementation
 
 { TGameStatModifyState }
 
-constructor TGameStatModifyState.Create;
+constructor TGameStatModifyState.Init;
 begin
 	mods := TContinuousMemoryManager.Create(SizeOf(TGameStatModifier), 50);
 end;
