@@ -208,7 +208,12 @@ function TAbility.FinaliseCast(const caster, target: PGameUnit): TCastResult;
 begin
 	Result := CheckConditions(@Self, caster, target);
 	if Result = CR_OK then
+	begin
+		caster^.resource -= resourcecost;
+		caster^.unrest += unrest;
+		remainingCooldown := cooldown;
 		TriggerAction(@Self, caster, target);
+	end;
 end;
 
 procedure TAbility.passtime(seconds: single);
