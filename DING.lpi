@@ -31,7 +31,7 @@
         <Display Value=":1"/>
       </local>
     </RunParams>
-    <Units Count="44">
+    <Units Count="43">
       <Unit0>
         <Filename Value="DING.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -84,6 +84,7 @@
       <Unit10>
         <Filename Value="enginegui.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineGUI"/>
       </Unit10>
       <Unit11>
         <Filename Value="enginedebug.pas"/>
@@ -93,6 +94,7 @@
       <Unit12>
         <Filename Value="portengproj.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="PortEngProj"/>
       </Unit12>
       <Unit13>
         <Filename Value="enginetimer.pas"/>
@@ -125,115 +127,117 @@
       <Unit19>
         <Filename Value="enginetext.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineText"/>
       </Unit19>
       <Unit20>
         <Filename Value="engineglcontext.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineGLContext"/>
       </Unit20>
       <Unit21>
-        <Filename Value="diyftgl.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit21>
-      <Unit22>
         <Filename Value="engineshader.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="EngineShader"/>
-      </Unit22>
-      <Unit23>
+      </Unit21>
+      <Unit22>
         <Filename Value="enginefacilities.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="EngineFacilities"/>
-      </Unit23>
-      <Unit24>
+      </Unit22>
+      <Unit23>
         <Filename Value="engineresourcecolour.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit24>
-      <Unit25>
+        <UnitName Value="EngineResourceColour"/>
+      </Unit23>
+      <Unit24>
         <Filename Value="engineresourcetexture.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit25>
-      <Unit26>
+        <UnitName Value="EngineResourceTexture"/>
+      </Unit24>
+      <Unit25>
         <Filename Value="gamegui.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GameGUI"/>
-      </Unit26>
-      <Unit27>
+      </Unit25>
+      <Unit26>
         <Filename Value="enginetextureloader.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="EngineTextureLoader"/>
-      </Unit27>
-      <Unit28>
+      </Unit26>
+      <Unit27>
         <Filename Value="engineresourceloader.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="EngineResourceLoader"/>
-      </Unit28>
-      <Unit29>
+      </Unit27>
+      <Unit28>
         <Filename Value="enginemodelloader.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="EngineModelLoader"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="engineshaderbuilder.pas"/>
+        <IsPartOfProject Value="True"/>
       </Unit29>
       <Unit30>
-        <Filename Value="engineshaderbuilder.pas"/>
+        <Filename Value="enginediskcache.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit30>
       <Unit31>
-        <Filename Value="enginediskcache.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit31>
-      <Unit32>
         <Filename Value="enginestrings.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit32>
-      <Unit33>
+        <UnitName Value="EngineStrings"/>
+      </Unit31>
+      <Unit32>
         <Filename Value="enginememory.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="EngineMemory"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="enginestringcomparer.pas"/>
+        <IsPartOfProject Value="True"/>
       </Unit33>
       <Unit34>
-        <Filename Value="enginestringcomparer.pas"/>
+        <Filename Value="enginefileutils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit34>
       <Unit35>
-        <Filename Value="enginefileutils.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit35>
-      <Unit36>
         <Filename Value="engineworld.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="EngineWorld"/>
-      </Unit36>
-      <Unit37>
+      </Unit35>
+      <Unit36>
         <Filename Value="gameunit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GameUnit"/>
-      </Unit37>
-      <Unit38>
+      </Unit36>
+      <Unit37>
         <Filename Value="gamespell.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GameSpell"/>
+      </Unit37>
+      <Unit38>
+        <Filename Value="gamestats.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GameStats"/>
       </Unit38>
       <Unit39>
-        <Filename Value="gamestats.pas"/>
+        <Filename Value="enginemousekeyboard.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit39>
       <Unit40>
-        <Filename Value="enginemousekeyboard.pas"/>
+        <Filename Value="engineshape.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit40>
       <Unit41>
-        <Filename Value="engineshape.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit41>
-      <Unit42>
         <Filename Value="engineoctree.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="EngineOctree"/>
-      </Unit42>
-      <Unit43>
+      </Unit41>
+      <Unit42>
         <Filename Value="gameport.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GamePort"/>
-      </Unit43>
+      </Unit42>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
