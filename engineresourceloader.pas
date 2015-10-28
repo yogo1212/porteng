@@ -53,8 +53,6 @@ procedure FreeResource(const bType: TResourceBuilderType; Content: TObject;
 	const conttype: TGameResourceType);
 begin
 	handlers[bType].FreeLoaded(Content, conttype);
-
-	FreeAndNil(Content);
 end;
 
 procedure Store(Name: TEngineString; pnt: Pointer; size: cardinal);
