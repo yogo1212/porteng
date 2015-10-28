@@ -291,11 +291,10 @@ var
 	zhlr: cardinal;
 begin
 	//TODO enumerator for operations that don't need to be that fast?
-	zhlr := _used_resources.Count;
-	while zhlr > 0 do
+	for zhlr := _used_resources.Count downto 1 do
 	begin
-		GameResourceUnUnse(PEngineString(_used_resources.Get(zhlr))^);
-		_used_resources.DeleteAt(zhlr);
+		GameResourceUnUnse(PEngineString(_used_resources.Get(0))^);
+		_used_resources.DeleteAt(0);
 	end;
 	FreeAndNil(_used_resources);
 	inherited Destroy;
