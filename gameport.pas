@@ -5,8 +5,8 @@ unit GamePort;
 interface
 
 uses
-	Classes, SysUtils, EngineFacilities, EnginePort, EngineStrings, EngineTypes, GameUnit,
-	EngineUnit, GameGUI;
+	Classes, SysUtils, EngineFacilities, EnginePort, EngineStrings, EngineResourceLoader,
+	EngineTypes, GameUnit, EngineUnit, EngineResource, GameGUI, EngineObject;
 
 type
 	{ TLinkedAbility }
@@ -17,9 +17,14 @@ type
 	end;
 
 type
-	TGamePort = class
+
+	{ TGamePort }
+
+	TGamePort = class(TEngineResourceUser)
 		port: TEnginePort;
 		u: TGameUnit;
+		procedure ActivateAbility(index: word);
+		constructor Create(nport: TEnginePort; pos: TGamePosition; rota: TGameRotation);
 	end;
 
 procedure GamePortInit;
@@ -33,13 +38,11 @@ procedure portCreationCB(port: TEnginePort);
 var
 	tmpport: TGamePort;
 begin
-	tmpport := TGamePort.Create;
-	tmpport.port := port;
+	tmpport := TGamePort.Create(port, GamePosition(0, 0, 0, 0, 0, 0), XYZRotation(0, 0));
 	ports.Add(Pointer(tmpport));
-	port.mainUnit := CreateUnit(0, EngineString('colBall'),
-		GamePosition(0, 12, 0, 0, 0, 0), XYZRotation(0, 0), 0);
-	tmpport.u.Init(port.mainUnit, 5);
+	port.mainUnit := tmpport.u.physunit;
 	port.HUD := TGameInterfaceMaster.Create;
+	port.SetAbilityCb(@tmpport.ActivateAbility);
 end;
 
 procedure portDeletionCB(port: TEnginePort);
@@ -68,7 +71,7 @@ begin
 
 		for pnt in ports do
 		begin
-			// TODO this means the engine-ports have not been freed
+			FreeAndNil(TGamePort(pnt));
 		end;
 		FreeAndNil(ports);
 	end;
@@ -87,6 +90,24 @@ begin
 
 		AddFreeRoutine(@GamePortFree);
 	end;
+end;
+
+{ TGamePort }
+
+procedure TGamePort.ActivateAbility(index: word);
+begin
+	//TODO
+end;
+
+constructor TGamePort.Create(nport: TEnginePort; pos: TGamePosition;
+	rota: TGameRotation);
+var
+	model: TGameModel;
+begin
+	inherited Create;
+	port := nport;
+	model := TGameModel(GetResource(ModelName('colBall'), grtModel));
+	u.Init(CreateUnit(0, model.GetRepresentation, pos, rota, 0), 5);
 end;
 
 end.

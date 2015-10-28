@@ -20,7 +20,7 @@ type
 		ieCursorTickX, ieCursorTickY,
 		ieZoomTickX, ieZoomTickY,
 		ieNoclip,
-		ieAbility1, ieAbility2, ieAbility3, ieAbility4, ieAbility5, ieAbility6,
+		ieAbility1, ieAbility2, ieAbility3, ieAbility4, ieAbility5, ieAbility6, ieAbilityMax,
 		// The following can be used to express atomar GIEs (states);
 		ieMoveRelXp, ieMoveRelXn, ieMoveRelYp, ieMoveRelYn, ieMoveRelZp, ieMoveRelZn,
 		ieCursorXp, ieCursorXn, ieCursorYp, ieCursorYn, ieLookRelXZp, ieLookRelXZn,

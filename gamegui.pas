@@ -7,14 +7,24 @@ interface
 uses
 	Classes, SysUtils, EngineGUI, EngineResourceTexture, EngineStrings, Convenience,
 	EngineTextureLoader, dglOpenGL, EngineResource, EngineResourceLoader, EngineFacilities,
-	EngineObject, EngineShader, EngineTypes;
+	EngineObject, EngineShader, EngineTypes, GameUnit;
 
 type
+
+	{ TGameHealthBox }
+
+	TGameHealthBox = class(TEngineUIElement)
+		u: TGameUnit;
+		box: TGameModelRepr;
+		procedure DrawSelf; override;
+		constructor Create(nu: TGameUnit; nboundry: TVec4);
+	end;
 
 	{ TGameAbilityBar }
 
 	TGameAbilityBar = class(TEngineUIElement)
 		asdfff: TGameModelRepr;
+		texmodname: TEngineString;
 		procedure DrawSelf; override;
 		constructor Create(nboundry: TVec4);
 		destructor Destroy; override;
@@ -32,6 +42,7 @@ type
 	TGameInterfaceMaster = class(TEngineUIElement)
 		chatbox: TGameChatBox;
 		abilitybar: TGameAbilityBar;
+		healthbox: TGameHealthBox;
 		constructor Create;
 		procedure DrawSelf; override;
 	end;
@@ -48,8 +59,6 @@ const
 
 var
 	initialised: boolean = False;
-	interfacemaster: TGameInterfaceMaster;
-	texmodname: TEngineString;
 
 procedure DestroyGui;
 begin
@@ -60,8 +69,6 @@ begin
 end;
 
 procedure InitGuiTextures;
-var
-	texname, modname: TEngineString;
 begin
 	if not initialised then
 	begin
@@ -72,25 +79,31 @@ begin
 		GameTextureGUIShaderInit;
 		GameColourGUIShaderInit;
 
-		modname := EngineString('abilitybarmod', GUIxSalt, GUIdSalt);
-		texname := EngineString('abilitybartex', GUIxSalt, GUIdSalt);
-		texmodname := EngineString('abilitybartexmod', GUIxSalt, GUIdSalt);
-
-		GameResourceAdd(LoadTexFromBmp(abilitybarfile, texname, GL_RGBA), texname);
-
-		Create2DGUIRect(modname, gbBottomMiddle, 0, -1, 1, 0.2);
-
-		GameResourceAdd(GameTexModLoader(texmodname, modname, texname), texmodname);
-
 		AddFreeRoutine(@DestroyGui);
 	end;
+end;
+
+{ TGameHealthBox }
+
+procedure TGameHealthBox.DrawSelf;
+begin
+	//getprogram(spTextureGUI).SetSize(boundry.X, boundry.Y);
+	PrepareShader(@box);
+	DrawModel(@box);
+end;
+
+constructor TGameHealthBox.Create(nu: TGameUnit; nboundry: TVec4);
+begin
+	inherited Create(nboundry);
+	// TODO wrong texture
+	box := TGameTexModPair(GetResource(ResourceName('abilitybartexmod'), grtModel)).GetRepresentation;
+	box.programtype := spTextureGUI;
 end;
 
 { TGameChatBox }
 
 procedure TGameChatBox.DrawSelf;
 begin
-
 end;
 
 constructor TGameChatBox.Create(nboundry: TVec4);
@@ -102,21 +115,32 @@ end;
 
 procedure TGameAbilityBar.DrawSelf;
 begin
-	//getprogram(spTextureGUI).SetSize(boundry.X, boundry.Y);
 	PrepareShader(@asdfff);
 	DrawModel(@asdfff);
 end;
 
 constructor TGameAbilityBar.Create(nboundry: TVec4);
+var
+	texname, modname: TEngineString;
 begin
 	inherited Create(nboundry);
-	asdfff := TGameTexModPair(GameResourceUse(texmodname, grtModel)).GetRepresentation;
+
+	modname := ModelName('abilitybarmod');
+	texname := TextureName('abilitybartex');
+	texmodname := ModelName('abilitybartexmod');
+
+	LoadTexFromBmp(abilitybarfile, texname, GL_RGBA);
+
+	Create2DGUIRect(modname, gbBottomMiddle, 0, -1, 1, 0.2);
+
+	GameTexModLoader(texmodname, modname, texname);
+
+	asdfff := TGameModel(GetResource(texmodname, grtModel)).GetRepresentation;
 	asdfff.programtype := spTextureGUI;
 end;
 
 destructor TGameAbilityBar.Destroy;
 begin
-	GameResourceUnUnse(texmodname);
 	inherited Destroy;
 end;
 

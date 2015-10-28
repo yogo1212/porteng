@@ -5,16 +5,17 @@ unit EngineTextureLoader;
 interface
 
 uses
-	Classes, SysUtils, EngineResourceTexture, dglOpenGL, EngineStrings,
-  EngineResourceLoader;
+	Classes, SysUtils, dglOpenGL, EngineResourceTexture, EngineResource, EngineStrings,
+	EngineResourceLoader;
 
-function LoadTexFromBmp(filepath: String; name: TEngineString; targetFormat: GLenum):
-  TResourceBuilderType;
+procedure LoadTexFromBmp(filepath: string; Name: TResourceName;
+	targetFormat: GLenum);
+
+function TextureName(const s: string): TResourceName;
 
 implementation
 
-function LoadTexFromBmp(filepath: String; name: TEngineString; targetFormat: GLenum):
-  TResourceBuilderType;
+procedure LoadTexFromBmp(filepath: string; Name: TEngineString; targetFormat: GLenum);
 var
 	startaddress, headersize, filesize, bmpsize, compression: longword;
 	Width, Height: longint;
@@ -22,9 +23,10 @@ var
 	filestream: TFileStream;
 	headerbuffer: array[byte] of byte;
 	topdown: boolean;
+	glformat: GLint;
 begin
 	filestream := TFileStream.Create(filepath, fmOpenRead);
-  headerbuffer[0] := 0;
+	headerbuffer[0] := 0;
 	filestream.Read(headerbuffer, 10);
 	if (Chr(headerbuffer[0]) <> 'B') or (Chr(headerbuffer[1]) <> 'M') then
 		raise Exception.Create(filepath + ' is not valid Bitmap-File');
@@ -79,15 +81,21 @@ begin
 		topdown := False;
 
 	if bpp = 32 then
-    Result := GameTextureLoader(name, Width, Height, GL_RGBA, targetFormat,
-      GL_UNSIGNED_BYTE, filepath, filestream.Position, topdown)
+		glformat := GL_RGBA
 	else if bpp = 24 then
-		Result := GameTextureLoader(name, Width, Height, GL_RGB, targetFormat,
-      GL_UNSIGNED_BYTE, filepath, filestream.Position, topdown)
+		glformat := GL_RGB
 	else
 		raise Exception.Create('Unrecognized pixelformat on ' + filepath);
 
+	GameTextureLoader(Name, Width, Height, glformat, targetFormat,
+		GL_UNSIGNED_BYTE, filepath, filestream.Position, topdown);
+
 	FreeAndNil(filestream);
+end;
+
+function TextureName(const s: string): TResourceName;
+begin
+	Result := EngineString('texture.' + s);
 end;
 
 end.

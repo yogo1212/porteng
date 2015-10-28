@@ -5,7 +5,7 @@ unit EngineGUI;
 interface
 
 uses
-	Classes, SysUtils, EngineTypes, dglOpenGL;
+	Classes, SysUtils, EngineTypes, EngineResource, dglOpenGL;
 
 type
 
@@ -14,10 +14,10 @@ type
 
 	{ TEngineUIElement }
 
-	TEngineUIElement = class
+	TEngineUIElement = class(TEngineResourceUser)
 	protected
 		procedure SetBoundry(AValue: TVec4);
-  public
+	public
 		boundry: TVec4;
 		matrix: TGLMatrixf4;
 		constructor Create(nboundry: TVec4);
@@ -37,6 +37,7 @@ end;
 
 constructor TEngineUIElement.Create(nboundry: TVec4);
 begin
+	inherited Create;
 	boundry := nboundry;
 end;
 
@@ -45,4 +46,4 @@ begin
 
 end;
 
-end.
+end.

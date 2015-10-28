@@ -14,14 +14,14 @@ type
 
 	{ TEngineUnit }
 
-	TEngineUnit = object(TGameGraphicsObj)
+	TEngineUnit = object(TDrawableObject)
 	protected
 		//tvelo,
 		velo, relamov, fallVelo: TVec3;
 		tpos: TGamePosition;
 		id: longword;
 
-		constructor Create(newid: longword; model: TEngineString;
+		constructor Create(newid: longword; model: TGameModelRepr;
 			position: TGamePosition; rotation: TGameRotation; nspeed: GLfloat);
 		procedure UpdateVelocity;
 	public
@@ -44,8 +44,8 @@ type
 procedure PassAllUnitsTime(seconds: GLfloat);
 procedure DrawAllUnits;
 procedure EngineUnitInit;
-function CreateUnit(newid: longword; Model: TEngineString; position: TGamePosition;
-	rotation: TGameRotation; nspeed: GLfloat): PEngineUnit;
+function CreateUnit(newid: longword; Model: TGameModelRepr;
+	position: TGamePosition; rotation: TGameRotation; nspeed: GLfloat): PEngineUnit;
 
 implementation
 
@@ -179,8 +179,8 @@ begin
 	end;
 end;
 
-function CreateUnit(newid: longword; Model: TEngineString; position: TGamePosition;
-	rotation: TGameRotation; nspeed: GLfloat): PEngineUnit;
+function CreateUnit(newid: longword; Model: TGameModelRepr;
+	position: TGamePosition; rotation: TGameRotation; nspeed: GLfloat): PEngineUnit;
 var
 	tmpunit: TEngineUnit;
 begin
@@ -272,7 +272,7 @@ end;
 
 procedure TEngineUnit.UpdateVelocity;
 begin
-	if state = psFlying then
+	if (state = psFlying) or (state = psNoclip) then
 	begin
 		velo.X := (relamov.Z * sin(rota.xzangle) * cos(rota.yangle) -
 			relamov.X * cos(rota.xzangle)) * Speed;
@@ -288,7 +288,7 @@ begin
 	end;
 end;
 
-constructor TEngineUnit.Create(newid: longword; model: TEngineString;
+constructor TEngineUnit.Create(newid: longword; model: TGameModelRepr;
 	position: TGamePosition; rotation: TGameRotation; nspeed: GLfloat);
 begin
 	inherited Create(Model, rotation, position);
@@ -306,7 +306,6 @@ begin
 	if state = psFlying then
 		RotateY(amounty);
 	updateTable[(amountxz <> 0) or (amounty <> 0)](@UpdateVelocity);
-
 end;
 
 procedure TEngineUnit.Jump;
@@ -322,8 +321,6 @@ end;
 destructor TEngineUnit.Destroy;
 begin
 	RemoveUnit(Self);
-
-	inherited Destroy;
 end;
 
 end.

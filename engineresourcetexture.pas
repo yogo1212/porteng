@@ -29,27 +29,25 @@ type
 	{ TGameTexModPair }
 
 	TGameTexModPair = class(TGameModel)
-		model, texture: TEngineString;
-		gtexture: TGameTextureRepr;
-		gmodel: TGameModelRepr;
+		texture, model: TEngineString;
 		constructor Create(nmodel, ntexture: TEngineString);
-		destructor Destroy; override;
 	end;
 
-function GameTextureLoader(const Name: TEngineString; const Width, Height: cardinal;
+procedure GameTextureLoader(const Name: TEngineString; const Width, Height: cardinal;
 	const internalformat: GLint; const pixeltype: GLenum; const format: GLint;
-	const pixels: Pointer): TResourceBuilderType;
-function GameTexMesh3Loader(Name: TEngineString; vertexcount: cardinal;
+	const pixels: Pointer);
+procedure GameTexMesh3Loader(Name: TEngineString; vertexcount: cardinal;
 	vertexes: PVec3; texcoords: PVec2; drawtype: GLenum; indexcount: cardinal;
-	indexlist: PGLuint): TResourceBuilderType;
-function GameTexMesh2Loader(Name: TEngineString; vertexcount: cardinal;
+	indexlist: PGLuint);
+procedure GameTexMesh2Loader(Name: TEngineString; vertexcount: cardinal;
 	vertexes: PVec2; texcoords: PVec2; drawtype: GLenum; indexcount: cardinal;
-	indexlist: PGLuint): TResourceBuilderType;
-function GameTexModLoader(Name, model, texture: TEngineString): TResourceBuilderType;
-function GameTextureLoader(Name: TEngineString; Width, Height: cardinal;
+	indexlist: PGLuint);
+procedure GameTexModLoader(Name, model, texture: TEngineString);
+procedure GameTextureLoader(Name: TEngineString; Width, Height: cardinal;
 	format, internalFormat: GLint; pixeltype: GLenum; filename: string;
-	pixeloffset: cardinal; topdown: boolean): TResourceBuilderType; overload;
+	pixeloffset: cardinal; topdown: boolean); overload;
 
+//TODO these do not belong here
 procedure Create2DRect(Name: TEngineString; boundry: TGameBoundry;
 	Width, Height: GlFloat);
 procedure CreateCube(Name: TEngineString; boundry: TGameBoundry; Size: GLfloat);
@@ -77,52 +75,70 @@ type
 
 constructor TGameTexModPair.Create(nmodel, ntexture: TEngineString);
 var
-	tmpmodel: TGameModel;
+	gmod: TGameModel;
+	gtex: TGameTexture;
 begin
-	gtexture := TGameTexture(GameResourceUse(ntexture, grtTexture)).GetRepresentation;
-	tmpmodel := TGameModel(GameResourceUse(nmodel, grtModel));
-	gmodel := tmpmodel.GetRepresentation;
-	inherited Create(gmodel.programtype, gmodel.vertexarray, tmpmodel.vertexbuffer,
-		gmodel.indexlist, gtexture.handle, gmodel.drawType, gmodel.indexcount,
-		gmodel.vertexcount);
-	model := nmodel;
+	inherited Create;
 	texture := ntexture;
+	model := nmodel;
+	gmod := TGameModel(GetResource(model, grtModel));
+	gtex := TGameTexture(GetResource(texture, grtTexture));
+	programtype := gmod.programtype;
+	vertexarray := gmod.vertexarray;
+	vertexbuffer := gmod.vertexbuffer;
+	indexlist := gmod.indexlist;
+	textureHandle := gtex.handle;
+	drawType := gmod.drawType;
+	indexcount := gmod.indexcount;
+	vertexcount := gmod.vertexcount;
 end;
 
-destructor TGameTexModPair.Destroy;
-begin
-	GameResourceUnUnse(texture);
-	GameResourceUnUnse(model);
-	inherited Destroy;
-end;
-
-function GameTexModLoader(Name, model, texture: TEngineString): TResourceBuilderType;
+procedure GameTexModLoader(Name, model, texture: TEngineString);
 var
 	tmppnt: Pointer;
 	tmpsize: cardinal;
 begin
 	tmpsize := SizeOf(TEngineString) * 2;
 	GetMem(tmppnt, tmpsize);
-	Result := grbTexModPair;
 
 	Move(model, tmppnt^, SizeOf(TEngineString));
 	Move(texture, Pointer(tmppnt + SizeOf(TEngineString))^, SizeOf(TEngineString));
 
-	Store(Name, tmppnt, tmpsize);
+	GameResourceAdd(Name, grbTexModPair, tmppnt, tmpsize);
 	FreeMem(tmppnt, tmpsize);
 end;
 
-function LoadTexModFromCache(const cache: Pointer; const cachesize: cardinal;
-	out conttype: TGameResourceType): TObject;
+type
+
+	{ TgrbTexModHandler }
+
+	TgrbTexModHandler = class(TEngineResourceHandler)
+		function LoadFromCache(const cache: Pointer; const cachesize: cardinal;
+			out conttype: TGameResourceType): TObject; override;
+		procedure FreeLoaded(loaded: Pointer; const rtype: TGameResourceType); override;
+	end;
+
+{ TgrbTexModHandler }
+
+function TgrbTexModHandler.LoadFromCache(const cache: Pointer;
+	const cachesize: cardinal; out conttype: TGameResourceType): TObject;
+var
+	modelpath, texturepath: TEngineString;
 begin
-	Result := TGameTexModPair.Create(PEngineString(cache)^,
-		PEngineString(cache + SizeOf(TEngineString))^);
+	modelpath := PEngineString(cache)^;
+	texturepath := PEngineString(cache + SizeOf(TEngineString))^;
+	Result := TGameTexModPair.Create(modelpath, texturepath);
 	conttype := grtModel;
 end;
 
-function GameTextureLoader(Name: TEngineString; Width, Height: cardinal;
+procedure TgrbTexModHandler.FreeLoaded(loaded: Pointer; const rtype: TGameResourceType);
+begin
+	FreeAndNil(TGameTexModPair(loaded));
+end;
+
+procedure GameTextureLoader(Name: TEngineString; Width, Height: cardinal;
 	format, internalFormat: GLint; pixeltype: GLenum; filename: string;
-	pixeloffset: cardinal; topdown: boolean): TResourceBuilderType;
+	pixeloffset: cardinal; topdown: boolean);
 var
 	tmpmeta: TTextureMeta;
 	tmppnt: Pointer;
@@ -149,14 +165,25 @@ begin
 	PBoolean(tmppnt + SizeOf(tmpmeta) + SizeOf(filenamelength) +
 		filenamelength + SizeOf(pixeloffset))^ := topdown;
 
-	Store(Name, tmppnt, tmpsize);
+	GameResourceAdd(Name, grbTextureFile, tmppnt, tmpsize);
 
 	FreeMem(tmppnt, tmpsize);
-	Result := grbTextureFile;
 end;
 
-function LoadTextureFileFromCache(const cache: Pointer; const cachesize: cardinal;
-	out conttype: TGameResourceType): TObject;
+type
+
+	{ TgrbTexFileLoader }
+
+	TgrbTexFileLoader = class(TEngineResourceHandler)
+		function LoadFromCache(const cache: Pointer; const cachesize: cardinal;
+			out conttype: TGameResourceType): TObject; override;
+		procedure FreeLoaded(loaded: Pointer; const rtype: TGameResourceType); override;
+	end;
+
+{ TgrbTexFileLoader }
+
+function TgrbTexFileLoader.LoadFromCache(const cache: Pointer;
+	const cachesize: cardinal; out conttype: TGameResourceType): TObject;
 var
 	texmeta: TTextureMeta;
 	filenamelength: word;
@@ -235,6 +262,11 @@ begin
 	TGameTexture(Result).handle := handle;
 end;
 
+procedure TgrbTexFileLoader.FreeLoaded(loaded: Pointer; const rtype: TGameResourceType);
+begin
+	FreeAndNil(TGameTexture(loaded));
+end;
+
 { TGameTexture }
 
 function TGameTexture.GetRepresentation: TGameTextureRepr;
@@ -248,9 +280,9 @@ begin
 	inherited Destroy;
 end;
 
-function GameTextureLoader(const Name: TEngineString; const Width, Height: cardinal;
+procedure GameTextureLoader(const Name: TEngineString; const Width, Height: cardinal;
 	const internalformat: GLint; const pixeltype: GLenum; const format: GLint;
-	const pixels: Pointer): TResourceBuilderType;
+	const pixels: Pointer);
 var
 	tmpmeta: TTextureMeta;
 	tmppnt: Pointer;
@@ -275,15 +307,25 @@ begin
 	Move(tmpmeta, tmppnt^, SizeOf(tmpmeta));
 	Move(pixels^, Pointer(tmppnt + SizeOf(tmpmeta))^, pixelsize);
 
-	Result := grbTexture;
-
-	Store(Name, tmppnt, tmpword);
+	GameResourceAdd(Name, grbTexture, tmppnt, tmpword);
 
 	FreeMem(tmppnt, tmpword);
 end;
 
-function LoadTextureFromCache(const cache: Pointer; const cachesize: cardinal;
-	out conttype: TGameResourceType): TObject;
+type
+
+	{ TgrbTextureHandler }
+
+	TgrbTextureHandler = class(TEngineResourceHandler)
+		function LoadFromCache(const cache: Pointer; const cachesize: cardinal;
+			out conttype: TGameResourceType): TObject; override;
+		procedure FreeLoaded(loaded: Pointer; const rtype: TGameResourceType); override;
+	end;
+
+{ TgrbTextureHandler }
+
+function TgrbTextureHandler.LoadFromCache(const cache: Pointer;
+	const cachesize: cardinal; out conttype: TGameResourceType): TObject;
 var
 	texmeta: TTextureMeta;
 	handle: GLuint;
@@ -315,15 +357,19 @@ begin
 		glTexImage2D(GL_TEXTURE_2D, 0, texmeta.internalFormat, texmeta.Width, texmeta.Height,
 			0, texmeta.format, texmeta.pixeltype, Pointer(cache + SizeOf(TTextureMeta)));
 
-
 	Result := TGameTexture.Create;
 	conttype := grtTexture;
 	TGameTexture(Result).handle := handle;
 end;
 
-function GameTexMesh3Loader(Name: TEngineString; vertexcount: cardinal;
+procedure TgrbTextureHandler.FreeLoaded(loaded: Pointer; const rtype: TGameResourceType);
+begin
+	FreeAndNil(TGameTexture(loaded));
+end;
+
+procedure GameTexMesh3Loader(Name: TEngineString; vertexcount: cardinal;
 	vertexes: PVec3; texcoords: PVec2; drawtype: GLenum; indexcount: cardinal;
-	indexlist: PGLuint): TResourceBuilderType;
+	indexlist: PGLuint);
 var
 	tmpmeta: TTexModelMeta;
 	tmppnt: Pointer;
@@ -342,16 +388,15 @@ begin
 
 	if indexcount > 0 then
 		Move(indexlist^, Pointer(tmppnt + vertexcount * (SizeOf(TVec3Coord2)) +
-			SizeOf(tmpmeta))^, indexcount * SizeOf(indexlist^));
+			SizeOf(tmpmeta))^,
+			indexcount * SizeOf(indexlist^));
 
-	Result := grbTexModel3;
-	Store(Name, tmppnt, tmpword);
+	GameResourceAdd(Name, grbTexModel3, tmppnt, tmpword);
 	FreeMem(tmppnt, tmpword);
 end;
 
-function GameTexMesh2Loader(Name: TEngineString; vertexcount: cardinal;
-	vertexes, texcoords: PVec2; drawtype: GLenum; indexcount: cardinal;
-	indexlist: PGLuint): TResourceBuilderType;
+procedure GameTexMesh2Loader(Name: TEngineString; vertexcount: cardinal;
+	vertexes, texcoords: PVec2; drawtype: GLenum; indexcount: cardinal; indexlist: PGLuint);
 var
 	tmpmeta: TTexModelMeta;
 	tmppnt: Pointer;
@@ -371,13 +416,24 @@ begin
 		Move(indexlist^, Pointer(tmppnt + vertexcount * (SizeOf(TVec3Coord2)) +
 			SizeOf(tmpmeta))^, indexcount * SizeOf(indexlist^));
 
-	Store(Name, tmppnt, tmpword);
-	Result := grbTexModel2;
+	GameResourceAdd(Name, grbTexModel2, tmppnt, tmpword);
 	FreeMem(tmppnt, tmpword);
 end;
 
-function LoadTexMesh3FromCache(const cache: Pointer; const cachesize: cardinal;
-	out conttype: TGameResourceType): TObject;
+type
+
+	{ TgrbTexMod3Handler }
+
+	TgrbTexMod3Handler = class(TEngineResourceHandler)
+		function LoadFromCache(const cache: Pointer; const cachesize: cardinal;
+			out conttype: TGameResourceType): TObject; override;
+		procedure FreeLoaded(loaded: Pointer; const rtype: TGameResourceType); override;
+	end;
+
+{ TgrbTexMod3Handler }
+
+function TgrbTexMod3Handler.LoadFromCache(const cache: Pointer;
+	const cachesize: cardinal; out conttype: TGameResourceType): TObject;
 var
 	vertexarray, vertexbuffer, indexlist: GLuint;
 	vertexbytesize: cardinal;
@@ -418,8 +474,25 @@ begin
 		indexlist, 0, modMeta.drawtype, modMeta.indexcount, modMeta.vertexcount);
 end;
 
-function LoadTexMesh2FromCache(const cache: Pointer; const cachesize: cardinal;
-	out conttype: TGameResourceType): TObject;
+procedure TgrbTexMod3Handler.FreeLoaded(loaded: Pointer; const rtype: TGameResourceType);
+begin
+	FreeAndNil(TGameModel(loaded));
+end;
+
+type
+
+	{ TgrbTexMod2Handler }
+
+	TgrbTexMod2Handler = class(TEngineResourceHandler)
+		function LoadFromCache(const cache: Pointer; const cachesize: cardinal;
+			out conttype: TGameResourceType): TObject; override;
+		procedure FreeLoaded(loaded: Pointer; const rtype: TGameResourceType); override;
+	end;
+
+{ TgrbTexMod2Handler }
+
+function TgrbTexMod2Handler.LoadFromCache(const cache: Pointer;
+	const cachesize: cardinal; out conttype: TGameResourceType): TObject;
 var
 	bytesize: longword;
 	vertexarray, vertexbuffer, indexlist: GLuint;
@@ -459,6 +532,11 @@ begin
 	conttype := grtModel;
 end;
 
+procedure TgrbTexMod2Handler.FreeLoaded(loaded: Pointer; const rtype: TGameResourceType);
+begin
+	FreeAndNil(TGameModel(loaded));
+end;
+
 procedure Create2DRect(Name: TEngineString; boundry: TGameBoundry;
 	Width, Height: GlFloat);
 const
@@ -493,8 +571,8 @@ begin
 			raise Exception.Create('Invalid boundry for TexObjects ' + IntToStr(Ord(boundry)));
 	end;
 
-	GameResourceAdd(GameTexMesh3Loader(Name, Length(fobj), @fobj[0],
-		@ftexcoords[0], GL_TRIANGLE_STRIP, 0, nil), Name);
+	GameTexMesh3Loader(Name, Length(fobj), @fobj[0], @ftexcoords[0],
+		GL_TRIANGLE_STRIP, 0, nil);
 end;
 
 procedure CreateCube(Name: TEngineString; boundry: TGameBoundry; Size: GLfloat);
@@ -546,8 +624,8 @@ begin
 				IntToStr(Ord(boundry)));
 	end;
 
-	GameResourceAdd(GameTexMesh3Loader(Name, Length(fobj), @fobj[0],
-		@ftexcoords[0], GL_TRIANGLE_STRIP, 0, nil), Name);
+	GameTexMesh3Loader(Name, Length(fobj), @fobj[0], @ftexcoords[0],
+		GL_TRIANGLE_STRIP, 0, nil);
 end;
 
 procedure Create2DGUIRect(Name: TEngineString; boundry: TGameBoundry;
@@ -575,23 +653,24 @@ begin
 		end;
 		gbTopLeft:
 		begin
-			fobj[0] := Vec2(x, y + Height);									//1
-			fobj[1] := Vec2(x, y);					//22
-			fobj[2] := Vec2(x + Width, y + Height);					//31
-			fobj[3] := Vec2(x + Width, y);	// 2
+			fobj[0] := Vec2(x, y + Height);					//1
+			fobj[1] := Vec2(x, y);									//22
+			fobj[2] := Vec2(x + Width, y + Height); //31
+			fobj[3] := Vec2(x + Width, y);					// 2
+
 		end
 		else
 			raise Exception.Create('Invalid boundry for TexObjects ' + IntToStr(Ord(boundry)));
 	end;
 
-	GameResourceAdd(GameTexMesh2Loader(Name, Length(fobj), @fobj[0],
-		@ftexcoords[0], GL_TRIANGLE_STRIP, 0, nil), Name);
+	GameTexMesh2Loader(Name, Length(fobj), @fobj[0], @ftexcoords[0],
+		GL_TRIANGLE_STRIP, 0, nil);
 end;
 
 initialization
-	SetLoader(grbTexture, @LoadTextureFromCache);
-	SetLoader(grbTexModPair, @LoadTexModFromCache);
-	SetLoader(grbTexModel3, @LoadTexMesh3FromCache);
-	SetLoader(grbTexModel2, @LoadTexMesh2FromCache);
-	SetLoader(grbTextureFile, @LoadTextureFileFromCache);
+	SetHandler(grbTexture, TgrbTextureHandler.Create);
+	SetHandler(grbTexModPair, TgrbTexModHandler.Create);
+	SetHandler(grbTexModel3, TgrbTexMod3Handler.Create);
+	SetHandler(grbTexModel2, TgrbTexMod2Handler.Create);
+	SetHandler(grbTextureFile, TgrbTexFileLoader.Create);
 end.

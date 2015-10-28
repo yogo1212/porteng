@@ -12,17 +12,17 @@ type
 
 	//TComparer = function(a, b: Pointer): smallint;
 
-  _TPointerComparer = specialize TGameComparer<Pointer>;
+	_TPointerComparer = specialize TGameComparer<Pointer>;
 
-  { TPCardinalComparer }
-  // This better be somewhere else
+	{ TPCardinalComparer }
+	// This better be somewhere else
 
-  TPCardinalComparer = class(_TPointerComparer)
-    function compare(o1, o2: Pointer): shortint; override;
-    function greater(o1, o2: Pointer): Boolean; override;
-    function equal(o1, o2: Pointer): Boolean; override;
-    function less(o1, o2: Pointer): Boolean; override;
-  end;
+	TPCardinalComparer = class(_TPointerComparer)
+		function compare(o1, o2: Pointer): shortint; override;
+		function greater(o1, o2: Pointer): boolean; override;
+		function equal(o1, o2: Pointer): boolean; override;
+		function less(o1, o2: Pointer): boolean; override;
+	end;
 
 	{ TIndexedMemoryManager }
 
@@ -32,15 +32,15 @@ type
 		esize, used: cardinal;
 		constructor Create(nelementsize: cardinal);
 	public
-    // get the pointer to the i-th element
+		// get the pointer to the i-th element
 		function Get(i: cardinal): Pointer; virtual; abstract;
-    // copy the data from p to the i-th element
+		// copy the data from p to the i-th element
 		procedure Put(i: cardinal; p: Pointer); virtual; abstract;
-    // make space for another element at i
+		// make space for another element at i
 		procedure Insert(i: cardinal); virtual; abstract;
-		procedure Delete(index: cardinal); virtual; abstract;
-    procedure Clear; virtual; abstract;
-    procedure Append(p: Pointer);
+		procedure DeleteAt(index: cardinal); virtual; abstract;
+		procedure Clear; virtual; abstract;
+		procedure Append(p: Pointer);
 		property Count: cardinal read used;
 		property Elementsize: cardinal read esize;
 		property Items[i: cardinal]: Pointer read Get write Put;
@@ -53,9 +53,10 @@ type
 		bsize, capacity: cardinal;
 		Data: PByte;
 	public
-		procedure Delete(index: cardinal); override;
+		procedure DeleteAt(index: cardinal); override;
+		//procedure Delete(p: Pointer);
 		function Get(i: cardinal): Pointer; override;
-    procedure Clear; override;
+		procedure Clear; override;
 		procedure Put(i: cardinal; p: Pointer); override;
 		procedure Insert(i: cardinal); override;
 		constructor Create(nelementsize, blocksize: cardinal);
@@ -65,15 +66,15 @@ type
 	{ TFragmentedMemoryManager }
 
 	TFragmentedMemoryManager = class(TIndexedMemoryManager)
-    mem: TIndexedMemoryManager;
+		mem: TIndexedMemoryManager;
 		function Get(i: cardinal): Pointer; override;
 		procedure Put(i: cardinal; p: Pointer); override;
-		procedure Delete(index: cardinal); override;
+		procedure DeleteAt(index: cardinal); override;
 		procedure Insert(i: cardinal); override;
-    procedure Clear; override;
+		procedure Clear; override;
 		property Items[i: cardinal]: Pointer read Get write Put;
 		constructor Create(nelementsize, blocksize: cardinal);
-    destructor Destroy; override;
+		destructor Destroy; override;
 	end;
 
 	{ TKeyBasedMemoryManager }
@@ -81,21 +82,21 @@ type
 	TKeyBasedMemoryManager = class
 		abstract
 	private
-    function GetCount: Cardinal;
-		function GetPointerAt(i: Cardinal): Pointer;
-  protected
+		function GetCount: cardinal;
+		function GetPointerAt(i: cardinal): Pointer;
+	protected
 		mem: TIndexedMemoryManager;
 		compare: _TPointerComparer;
 		function GetIndex(p: Pointer; out index: cardinal): boolean; virtual; abstract;
 	public
 		function Fetch(p: Pointer): boolean;
-	  function Store(p: Pointer): Pointer;
-		function Delete(p: Pointer): Boolean; virtual; overload;
+		function Store(p: Pointer): Pointer;
+		function Delete(p: Pointer): boolean; virtual; overload;
 		destructor Destroy; override;
-    procedure Clear;
+		procedure Clear;
 		constructor Create(comparer: _TPointerComparer; memory: TIndexedMemoryManager);
-    property Traverse[i: Cardinal]: Pointer read GetPointerAt;
-    property Count: Cardinal read GetCount;
+		property Traverse[i: cardinal]: Pointer read GetPointerAt;
+		property Count: cardinal read GetCount;
 	end;
 
 	{ TSortedMemoryManager }
@@ -111,84 +112,86 @@ implementation
 
 function TPCardinalComparer.compare(o1, o2: Pointer): shortint;
 begin
-  Result := 0;
-  if PCardinal(o1)^ < PCardinal(o2)^ then
-    Result := -1
-  else if PCardinal(o1)^ > PCardinal(o2)^ then
-    Result := 1;
+	Result := 0;
+	if PCardinal(o1)^ < PCardinal(o2)^ then
+		Result := -1
+	else if PCardinal(o1)^ > PCardinal(o2)^ then
+		Result := 1;
 end;
 
-function TPCardinalComparer.greater(o1, o2: Pointer): Boolean;
+function TPCardinalComparer.greater(o1, o2: Pointer): boolean;
 begin
-  Result := PCardinal(o1)^ > PCardinal(o2)^;
+	Result := PCardinal(o1)^ > PCardinal(o2)^;
 end;
 
-function TPCardinalComparer.equal(o1, o2: Pointer): Boolean;
+function TPCardinalComparer.equal(o1, o2: Pointer): boolean;
 begin
-  Result := PCardinal(o1)^ = PCardinal(o2)^;
+	Result := PCardinal(o1)^ = PCardinal(o2)^;
 end;
 
-function TPCardinalComparer.less(o1, o2: Pointer): Boolean;
+function TPCardinalComparer.less(o1, o2: Pointer): boolean;
 begin
-  Result := PCardinal(o1)^ < PCardinal(o2)^;
+	Result := PCardinal(o1)^ < PCardinal(o2)^;
 end;
 
 { TFragmentedMemoryManager }
 
 function TFragmentedMemoryManager.Get(i: cardinal): Pointer;
 begin
-  Result := PPointer(mem.Get(i))^;
+	Result := PPointer(mem.Get(i))^;
 end;
 
 procedure TFragmentedMemoryManager.Put(i: cardinal; p: Pointer);
 begin
-  Move(p^, Get(i)^, esize);
+	Move(p^, Get(i)^, esize);
 end;
 
-procedure TFragmentedMemoryManager.Delete(index: cardinal);
+procedure TFragmentedMemoryManager.DeleteAt(index: cardinal);
 begin
-  Freemem(Get(index), esize);
-  mem.Delete(index);
-  used := mem.used;
+	Freemem(Get(index), esize);
+	mem.DeleteAt(index);
+	used := mem.used;
 end;
 
 procedure TFragmentedMemoryManager.Insert(i: cardinal);
 begin
-  mem.Insert(i);
-  GetMem(PPointer(mem.Get(i))^, esize);
-  used := mem.used;
+	mem.Insert(i);
+	GetMem(PPointer(mem.Get(i))^, esize);
+	used := mem.used;
 end;
 
 procedure TFragmentedMemoryManager.Clear;
-var cnt: Cardinal;
+var
+	cnt: cardinal;
 begin
-  cnt := mem.used;
-  while cnt > 0 do
-  begin
-    Dec(cnt);
-    Delete(cnt);
-  end;
-  used := 0;
+	cnt := mem.used;
+	while cnt > 0 do
+	begin
+		Dec(cnt);
+		DeleteAt(cnt);
+	end;
+	used := 0;
 end;
 
 constructor TFragmentedMemoryManager.Create(nelementsize, blocksize: cardinal);
 begin
-  Inherited Create(nelementsize);
-  used := 0;
-  mem := TContinuousMemoryManager.Create(SizeOf(Pointer), blocksize);
+	inherited Create(nelementsize);
+	used := 0;
+	mem := TContinuousMemoryManager.Create(SizeOf(Pointer), blocksize);
 end;
 
 destructor TFragmentedMemoryManager.Destroy;
-var cnt: Cardinal;
+var
+	cnt: cardinal;
 begin
-  cnt := 0;
-  while cnt < mem.used do
-  begin
-    Freemem(Get(cnt), esize);
-    Inc(cnt);
-  end;
-  FreeAndNil(mem);
-  inherited Destroy;
+	cnt := 0;
+	while cnt < mem.used do
+	begin
+		Freemem(Get(cnt), esize);
+		Inc(cnt);
+	end;
+	FreeAndNil(mem);
+	inherited Destroy;
 end;
 
 { TSortedMemoryManager }
@@ -228,17 +231,17 @@ end;
 
 procedure TKeyBasedMemoryManager.Clear;
 begin
-  mem.clear;
+	mem.Clear;
 end;
 
-function TKeyBasedMemoryManager.GetCount: Cardinal;
+function TKeyBasedMemoryManager.GetCount: cardinal;
 begin
-  Result := mem.Count;
+	Result := mem.Count;
 end;
 
-function TKeyBasedMemoryManager.GetPointerAt(i: Cardinal): Pointer;
+function TKeyBasedMemoryManager.GetPointerAt(i: cardinal): Pointer;
 begin
-  Result := mem.Get(i);
+	Result := mem.Get(i);
 end;
 
 function TKeyBasedMemoryManager.Fetch(p: Pointer): boolean;
@@ -256,20 +259,20 @@ var
 begin
 	if not GetIndex(p, index) then
 		mem.Insert(index);
-  Result := mem.Get(index);
+	Result := mem.Get(index);
 	Move(p^, Result^, mem.esize);
 end;
 
-function TKeyBasedMemoryManager.Delete(p: Pointer): Boolean;
+function TKeyBasedMemoryManager.Delete(p: Pointer): boolean;
 var
 	index: cardinal;
 begin
-  Result := GetIndex(p, index);
+	Result := GetIndex(p, index);
 	if Result then
-  begin
-    Move(mem.get(index)^, p^, mem.Elementsize);
-		mem.Delete(index)
-  end;
+	begin
+		Move(mem.get(index)^, p^, mem.Elementsize);
+		mem.DeleteAt(index);
+	end;
 end;
 
 { TIndexedMemoryManager }
@@ -281,13 +284,13 @@ end;
 
 procedure TIndexedMemoryManager.Append(p: Pointer);
 begin
-  Insert(Count);
-  Put(Count - 1, p);
+	Insert(Count);
+	Put(Count - 1, p);
 end;
 
 { TContinuousMemoryManager }
 
-constructor TContinuousMemoryManager.Create(nelementsize: cardinal; blocksize: cardinal);
+constructor TContinuousMemoryManager.Create(nelementsize, blocksize: cardinal);
 begin
 	bsize := blocksize;
 	esize := nelementsize;
@@ -302,7 +305,7 @@ begin
 	inherited Destroy;
 end;
 
-procedure TContinuousMemoryManager.Delete(index: cardinal);
+procedure TContinuousMemoryManager.DeleteAt(index: cardinal);
 var
 	tmpbytes: PByte;
 	len: cardinal;
@@ -326,6 +329,17 @@ begin
 		Freemem(tmpbytes);
 	end;
 end;
+
+{
+procedure TContinuousMemoryManager.Delete(p: Pointer);
+function IndexOfPointer(p: Pointer): Cardinal;
+begin
+  Result := (p - Data) div Elementsize;
+  end;
+begin
+  DeleteAt(IndexOfPointer(p));
+end;
+}
 
 procedure TContinuousMemoryManager.Clear;
 begin
@@ -362,7 +376,7 @@ begin
 	end
 	else if len <> 0 then
 	begin
-	  GetMem(tmpbytes, len);
+		GetMem(tmpbytes, len);
 		Move(Data[i * esize], tmpbytes[0], len);
 		Move(tmpbytes[0], Data[(i + 1) * esize], len);
 		Freemem(tmpbytes, len);

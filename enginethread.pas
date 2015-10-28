@@ -5,8 +5,8 @@ unit EngineThread;
 interface
 
 uses
-	Classes, SysUtils, PortEngProj, EnginePort, EngineInput, EngineTimer, EngineFacilities,
-	EngineUnit, dglOpenGL;
+	Classes, SysUtils, dglOpenGL, PortEngProj, EnginePort, EngineInput, EngineTimer,
+	EngineFacilities, EngineUnit, EngineWorld;
 
 type
 
@@ -45,6 +45,7 @@ begin
 		Initialised := True;
 
 		GameTimeInit;
+		GameWorldInit;
 
 		gameThr := TGameThread.Create;
 

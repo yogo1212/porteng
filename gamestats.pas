@@ -83,7 +83,7 @@ begin
 		((priority = PGameStatModifier(mods.Get(tmpindex))^.priority) and
 			(proc = PGameStatModifier(mods.Get(tmpindex))^.proc)) do
 		Inc(tmpindex);
-	mods.Delete(tmpindex);
+	mods.DeleteAt(tmpindex);
 end;
 
 end.

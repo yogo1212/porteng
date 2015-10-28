@@ -14,6 +14,8 @@ uses
 type
 	TEventValueProc = procedure(Value: double) of object; register;
 
+	TActivateAbilityCB = procedure(index: word) of object;
+
 	{ TEnginePort }
 
 	TEnginePort = class(TGameObject)
@@ -24,6 +26,7 @@ type
 		MapCache: array[0..2, 0..2, 0..2] of TLoadedChunk;
 		mapoffset: byte;
 		OldRenderPos: TGamePosition;
+		abilityCB: TActivateAbilityCB;
 
 		rotaUnitXZproc, rotaUnitYproc, rotaCamXZproc, rotaCamYproc: TEventValueProc;
 		procedure DoRotaUnitXZ(Value: double);
@@ -58,6 +61,7 @@ type
 		procedure RenderWorld;
 		procedure UpdateMapCache;
 		procedure TryUpdatePos;
+		procedure SetAbilityCb(cb: TActivateAbilityCB);
 		constructor Create(inp: TInput);
 		destructor Destroy; override;
 	end;
@@ -349,6 +353,53 @@ begin
 	rotaCamXZproc := @DoRotaCamXZ;
 	rotaCamYproc := @DoRotaCamY;
 end;
+{
+
+// TODO i now think salts are bad - change for prefixes
+var
+	EmptyModel: TResourceName;
+
+procedure CreateEmptyMesh(Name: TEngineString; boundry: TGameBoundry;
+	Width, Height: GlFloat);
+const
+	ftexcoords: array[0..3] of TVec2 =
+		((X: 0; Y: 0), (X: 0; Y: 1), (X: 1; Y: 0), (X: 1; Y: 1));
+var
+	fobj: array[0..3] of TVec3;
+begin
+	case boundry of
+		gbMiddle:
+		begin
+			fobj[0] := Vec3(-Width / 2, Height / 2, 0);	 //1
+			fobj[1] := Vec3(-Width / 2, -Height / 2, 0); //22
+			fobj[2] := Vec3(Width / 2, Height / 2, 0);	 //31
+			fobj[3] := Vec3(Width / 2, -Height / 2, 0);	 // 2
+		end;
+		gbBottomMiddle:
+		begin
+			fobj[0] := Vec3(-Width / 2, Height, 0); //1
+			fobj[1] := Vec3(-Width / 2, 0, 0);			//22
+			fobj[2] := Vec3(Width / 2, Height, 0);	//31
+			fobj[3] := Vec3(Width / 2, 0, 0);				// 2
+		end;
+		gbTopLeft:
+		begin
+			fobj[0] := Vec3(0, 0, 0);					//1
+			fobj[1] := Vec3(0, -Height, 0);		//22
+			fobj[2] := Vec3(Width, 0, 0);			//31
+			fobj[3] := Vec3(Width, -Height, 0);// 2
+		end
+		else
+			raise Exception.Create('Invalid boundry for TexObjects ' + IntToStr(Ord(boundry)));
+	end;
+
+	GameResourceAdd(GameTexMesh3Loader(Name, Length(fobj), @fobj[0],
+		@ftexcoords[0], GL_TRIANGLE_STRIP, 0, nil), Name);
+end;
+
+initialization
+	EmptyModel := EngineString('emptyModel');
+  }
 
 procedure TEnginePort.DoInit;
 
@@ -369,12 +420,12 @@ var
 begin
 	if creationCB <> nil then
 		creationCB(Self);
-	if mainUnit = nil then
-		mainUnit := CreateUnit(0, EngineString('colBall'), GamePosition(0, 12, 0, 0, 0, 0),
-			XYZRotation(0, 0), 5);
-	if HUD = nil then
+	//if mainUnit = nil then
+		//mainUnit := CreateUnit(0, EmptyModel, GamePosition(0, 12, 0, 0, 0, 0),
+			//XYZRotation(0, 0), 5);
+	//if HUD = nil then
 		// TODO need engine default HUD
-		HUD := TGameInterfaceMaster.Create;
+		//HUD := TGameInterfaceMaster.Create;
 
 	camera.Create(@mainUnit^.pos, Vec3(0, 1, 0), 4, @camRota, gcFixed);
 
@@ -442,12 +493,7 @@ begin
 			else
 				mainUnit^.state := psNoclip;
 
-		{ieAbility1: bound_ability[0].activate;
-    ieAbility2: bound_ability[0].activate;
-    ieAbility3: bound_ability[0].activate;
-    ieAbility4: bound_ability[0].activate;
-    ieAbility5: bound_ability[0].activate;
-    ieAbility6: bound_ability[0].activate; }
+		ieAbility1..ieAbilityMax: abilityCB(Ord(evt) - Ord(ieAbility1));
 	end;
 end;
 
@@ -534,6 +580,11 @@ begin
 	genericLookup(LengthSquare(OldRenderPos - mainUnit^.pos) > 100, @UpdateMapCache);
 end;
 
+procedure TEnginePort.SetAbilityCb(cb: TActivateAbilityCB);
+begin
+	abilityCB := cb;
+end;
+
 constructor TEnginePort.Create(inp: TInput);
 begin
 	inherited Create;
@@ -541,6 +592,8 @@ begin
 	scale := 1;
 
 	UnlockRota;
+
+	abilityCB := nil;
 
 	FillByte(states, SizeOf(states[Low(TEngineLogicRelatedElement)]) * Length(states), 0);
 

@@ -8,18 +8,24 @@ uses
 	Classes, SysUtils, EngineStrings, EngineDiskCache, EngineFileUtils;
 
 type
-	TResourceBuilderType = (grbTexture, grbTextureFile, grbColModel, grbIndexedColModel,
-		grbTexModel2, grbTexModel3, grbTexModPair);
+	TResourceBuilderType = (grbFont, grbTexture, grbTextureFile, grbColModel,
+		grbIndexedColModel, grbTexModel2, grbTexModel3, grbTexModPair);
 
-	TGameResourceType = (grtTexture, grtModel);
+	TGameResourceType = (grtTexture, grtModel, grtFont);
 
-	TResourceLoader = function(const cache: Pointer; const cachesize: cardinal;
-		out conttype: TGameResourceType): TObject;
+	TEngineResourceHandler = class
+		function LoadFromCache(const cache: Pointer; const cachesize: cardinal;
+			out conttype: TGameResourceType): TObject; virtual; abstract;
+		procedure FreeLoaded(loaded: Pointer; const rtype: TGameResourceType);
+			virtual; abstract;
+	end;
 
-procedure LoadResource(bType: TResourceBuilderType; Name: TEngineString;
-	out Content: TObject; out conttype: TGameResourceType);
-procedure SetLoader(bType: TResourceBuilderType; loader: TResourceLoader);
+procedure LoadResource(const bType: TResourceBuilderType;
+	const Name: TEngineString; out Content: TObject; out conttype: TGameResourceType);
+procedure FreeResource(const bType: TResourceBuilderType; Content: TObject;
+	const conttype: TGameResourceType);
 procedure Store(Name: TEngineString; pnt: Pointer; size: cardinal);
+procedure SetHandler(bType: TResourceBuilderType; handler: TEngineResourceHandler);
 
 procedure ExtractVar(var src: Pointer; out dest; const amount: longword);
 procedure StoreVar(var dest: Pointer; const src; const amount: longword);
@@ -27,20 +33,28 @@ procedure StoreVar(var dest: Pointer; const src; const amount: longword);
 implementation
 
 var
-	loaders: array[TResourceBuilderType] of TResourceLoader;
+	handlers: array[TResourceBuilderType] of TEngineResourceHandler;
 	diskcache: TEngineDiskCache;
 
-procedure LoadResource(bType: TResourceBuilderType; Name: TEngineString;
-	out Content: TObject; out conttype: TGameResourceType);
+procedure LoadResource(const bType: TResourceBuilderType;
+	const Name: TEngineString; out Content: TObject; out conttype: TGameResourceType);
 var
 	tmppnt: Pointer;
 	tmpsize: cardinal;
 begin
 	tmpsize := diskcache.Load(Name, tmppnt);
 
-	Content := loaders[bType](tmppnt, tmpsize, conttype);
+	Content := handlers[bType].LoadFromCache(tmppnt, tmpsize, conttype);
 
 	Freemem(tmppnt, tmpsize);
+end;
+
+procedure FreeResource(const bType: TResourceBuilderType; Content: TObject;
+	const conttype: TGameResourceType);
+begin
+	handlers[bType].FreeLoaded(Content, conttype);
+
+	FreeAndNil(Content);
 end;
 
 procedure Store(Name: TEngineString; pnt: Pointer; size: cardinal);
@@ -60,9 +74,9 @@ begin
 	dest += amount;
 end;
 
-procedure SetLoader(bType: TResourceBuilderType; loader: TResourceLoader);
+procedure SetHandler(bType: TResourceBuilderType; handler: TEngineResourceHandler);
 begin
-	loaders[bType] := loader;
+	handlers[bType] := handler;
 end;
 
 initialization

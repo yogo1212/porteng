@@ -16,8 +16,8 @@ var
 	initialised: boolean = False;
 
 procedure InitGlContext;
-var
-	tmpint: integer;
+//var
+//	tmpint: integer;
 begin
 	if not initialised then
 	begin
@@ -45,9 +45,9 @@ begin
 
 		logTrace('Created GlContext with version ' + glGetString(GL_VERSION));
 
-		glGetIntegerv(GL_DEPTH_BITS, @tmpint);
-		logTrace('Depth-channel is ' + IntToStr(tmpint) + ' bits wide');
-		logTrace('Extensions: ' + glGetString(GL_EXTENSIONS));
+		//glGetIntegerv(GL_DEPTH_BITS, @tmpint);
+		//logTrace('Depth-channel is ' + IntToStr(tmpint) + ' bits wide');
+		//logTrace('Extensions: ' + glGetString(GL_EXTENSIONS));
 	end;
 end;
 

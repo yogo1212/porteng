@@ -9,7 +9,6 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
 	dglOpenGL,
 	SDL2,
 	convenience,
-	diyftgl,
 	PortEngProj,
 	EngineCamera,
 	EngineDataTypes,
@@ -63,14 +62,26 @@ begin
 			raise Exception.Create('OpenGlInitError');
 		InitWindow;
 
+		EngineResourceInit;
+
 		GameTextInit;
-		GameThreadInit;
 
 {$ifdef ENGINEDEBUG}
 		SetGlDebugCallback;
 {$endif}
 
+		GameInputInit(portengproject.mousekeyboard, portengproject.gamepad);
+
+		GamePortInit;
+
+		EngineUnitInit;
+
+
+		GameTextureShaderInit;
+		GameColorShaderInit;
+
 		GameLogicInit;
+		GameThreadInit;
 
 		//EngineForm.mainWindow.toggle_fullscreen;
 		EngineForm.mainWindow.mainLoop;

@@ -6,7 +6,7 @@ interface
 
 uses
 	Classes, SysUtils, EngineTypes, dglOpenGL, EngineResource, EngineShader,
-	EngineResourceLoader;
+	EngineResourceLoader, EngineStrings;
 
 type
 
@@ -21,12 +21,12 @@ type
 
 	{ TGameModel }
 
-	TGameModel = class
-		abstract
+	TGameModel = class(TEngineResourceUser)
 		programtype: TShaderProgramType;
 		vertexarray, vertexbuffer, indexlist, textureHandle: GLuint;
 		drawType: GLenum;
 		indexcount, vertexcount: word;
+		constructor Create;
 		constructor Create(nprogramtype: TShaderProgramType;
 			nvertexarray, nvertexbuffer, nindexlist, ntextureHandle: GLuint;
 			ndrawType: GLenum; nindexcount, nvertexcount: word);
@@ -34,26 +34,32 @@ type
 		function GetRepresentation: TGameModelRepr;
 	end;
 
-	{ TGameGraphicsObj }
+	{ TDrawableObject }
 
-	TGameGraphicsObj = object
+	TDrawableObject = object
 		gMesh: TGameModelRepr;
 		rota: TGameRotation;
 		pos: TGamePosition;
 
-		meshname: TResourceName;
-		constructor Create(mesh: TResourceName; rotation: TGameRotation;
+		constructor Create(model: TGameModelRepr; rotation: TGameRotation;
 			position: TGamePosition);
 		procedure Draw;
 		procedure rotateXZ(amount: GLfloat); virtual;
 		procedure rotateY(amount: GLfloat); virtual;
-		destructor Destroy;
 	end;
+
 
 procedure PrepareShader(repr: PGameModelRepr); register; inline;
 procedure DrawModel(repr: PGameModelRepr); register; inline;
 
+function ModelName(const s: string): TResourceName;
+
 implementation
+
+function ModelName(const s: string): TResourceName;
+begin
+	Result := EngineString('model.' + s);
+end;
 
 type
 	TModelReprProc = procedure(repr: PGameModelRepr);
@@ -101,10 +107,16 @@ end;
 
 { TGameModel }
 
+constructor TGameModel.Create;
+begin
+	inherited;
+end;
+
 constructor TGameModel.Create(nprogramtype: TShaderProgramType;
 	nvertexarray, nvertexbuffer, nindexlist, ntextureHandle: GLuint;
 	ndrawType: GLenum; nindexcount, nvertexcount: word);
 begin
+	inherited Create;
 	programtype := nprogramtype;
 	vertexarray := nvertexarray;
 	vertexbuffer := nvertexbuffer;
@@ -135,9 +147,9 @@ begin
 	Result.programtype := programtype;
 end;
 
-{ TGameGraphicsObj }
+{ TDrawableObject }
 
-procedure TGameGraphicsObj.Draw;
+procedure TDrawableObject.Draw;
 begin
 	glPushMatrix;
 	PrepareShader(@gMesh);
@@ -149,27 +161,20 @@ begin
 	glPopMatrix;
 end;
 
-constructor TGameGraphicsObj.Create(mesh: TResourceName; rotation: TGameRotation;
+constructor TDrawableObject.Create(model: TGameModelRepr; rotation: TGameRotation;
 	position: TGamePosition);
 begin
-	gMesh := TGameModel(GameResourceUse(mesh, grtModel)).GetRepresentation;
-	meshname := mesh;
+	gMesh := model;
 	rota := rotation;
 	pos := position;
 end;
 
-destructor TGameGraphicsObj.Destroy;
-begin
-	GameResourceUnUnse(meshname);
-	inherited;
-end;
-
-procedure TGameGraphicsObj.rotateXZ(amount: GLfloat);
+procedure TDrawableObject.rotateXZ(amount: GLfloat);
 begin
 	EngineTypes.Rotate(amount, @rota);
 end;
 
-procedure TGameGraphicsObj.rotateY(amount: GLfloat);
+procedure TDrawableObject.rotateY(amount: GLfloat);
 begin
 	EngineTypes.RotateClamped(amount, @rota);
 end;
